@@ -9,7 +9,8 @@ import scriptparser.DScriptTreePrinter;
 
 public class DScriptCreator {
 
-	public static void main(String[] args) {
+	//TODO Remove old Code
+	/*public static void main(String[] args) {
 		//String testString = "D{[r]S [cm] C}<RIPT> Wort<Test test2>";
 		//String testString = "1<2> 3{[r] 4 [cm]5}6 <7<8{[l] 9 [cm] 10}>11>";
 
@@ -46,9 +47,9 @@ public class DScriptCreator {
 			System.out.println("Error: "+e.getMessage());
 		}
 
-	}
+	}*/
 
-	private static void runParser(String testString) {
+	public static void runParser(String testString) {
 		DScriptParser parser = new DScriptParser(testString);
 		boolean isSucessfull = false;
 
@@ -73,9 +74,9 @@ public class DScriptCreator {
 				word.debugBlocks(0);
 				System.out.println("");
 				
-				DScriptTreePrinter treePrinter = new DScriptTreePrinter(word);
+				/*DScriptTreePrinter treePrinter = new DScriptTreePrinter(word);
 				treePrinter.printTree();
-				System.out.println("");
+				System.out.println("");*/
 			}
 
 		} else {
