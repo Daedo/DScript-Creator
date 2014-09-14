@@ -95,15 +95,11 @@ public class DScriptParser {
 	/**
 	 * Things that happens at every char:
 	 * 
-	 * <	EndBlock Normscriptlevel ++
-	 * 
-	 * >	EndBlock Normscriptlevel --
-	 * 
 	 * (	EndBlock StartLigature
 	 * 
-	 * |	EndBlock EndLigature StartLigatureID
+	 * |	EndBlock StartLigatureID
 	 * 
-	 * )	EndBlock EndLigatureID
+	 * )	SetLigatureID EndLigature EndLigatureID
 	 * 
 	 * {	EndBlock AddTopOfStackToStack Sidechainlevel++ 
 	 * 
@@ -231,8 +227,6 @@ public class DScriptParser {
 		if(!this.isLigatureID) {
 			throw new Exception("Parsing Error: Missing '|'");
 		}
-		
-		System.out.println("Ligature "+this.rootBlocks.peek().getText()+" - "+this.currentLigatureID);
 		
 		DScriptBlock ligature = this.rootBlocks.peek();
 		ligature.setLigatureID(this.currentLigatureID);

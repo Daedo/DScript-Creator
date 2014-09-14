@@ -244,10 +244,10 @@ public class DScriptBlock {
 	}
 	
 	/**
-	 * Compares the LigatueID of two Blocks. Returns true if they are identical
+	 * Compares the LigatueID of two Blocks. Returns true if they are empty
 	 * 
 	 * @param testBlock the Block to compare
-	 * @return Returns True if the levels match
+	 * @return Returns True if the LigatureID are empty
 	 */
 	public boolean hasMatchingProperties(DScriptBlock testBlock) {
 		if(this.ligatureID == testBlock.getLigatureID() && this.ligatureID == "") {
