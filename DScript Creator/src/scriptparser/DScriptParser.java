@@ -12,15 +12,18 @@ public class DScriptParser {
 	//Parsing Vars
 	private boolean isEscaped;
 	private String currentString;
-
-	private int normscriptLevel;
-
+	
+	private boolean isLigature;
+	private boolean isLigatureID;
+	private String currentLigatureID;
+	
 	private int sideChainLevel;
 	private boolean isPosition;
 	private String currentPosition;
 
 	private DScriptBlock wordRoot;
 	private Stack<DScriptBlock> rootBlocks;
+	
 
 	/**
 	 * Creates a new DScriptParser instance
@@ -96,6 +99,12 @@ public class DScriptParser {
 	 * 
 	 * >	EndBlock Normscriptlevel --
 	 * 
+	 * (	EndBlock StartLigature
+	 * 
+	 * |	EndBlock EndLigature StartLigatureID
+	 * 
+	 * )	EndBlock EndLigatureID
+	 * 
 	 * {	EndBlock AddTopOfStackToStack Sidechainlevel++ 
 	 * 
 	 * }	PopsTop EndBlock PopsOldTop AddsEndOfOldTopToStack SidechainLevel--
@@ -120,16 +129,17 @@ public class DScriptParser {
 			} else {
 
 				switch(currentChar) {
-				case '<': openNormscript(); break;
-				case '>': closeNormscript();break;
+				case '(': openLigature(); break;
+				case '|': toggleLigature(); break;
+				case ')': closeLigature();; break;
 
 				case '{': openSideChain();  break;
 				case '}': closeSidechain(); break;
 				case ' ': /*Spacebars in Side Chains will be ignored*/ break;
 
 				case '[':
-
-					openPosition();addSidechain();   		break;
+					openPosition();
+					addSidechain();   		break;
 				case ']': closePosition();  break;
 
 				default:
@@ -140,6 +150,7 @@ public class DScriptParser {
 		}
 	}
 
+
 	/**
 	 * Initializes the variables for parsing
 	 */
@@ -147,9 +158,11 @@ public class DScriptParser {
 		this.isEscaped = false;
 		this.currentString = "";
 
-		// <> No Normscript / Normscript / Strong Normscript
-		this.normscriptLevel = 0;
-
+		// (|) Ligatures
+		this.isLigature = false;
+		this.isLigatureID = false;
+		this.currentLigatureID = "";
+		
 		// {} Sidechain
 		this.sideChainLevel = 0;
 
@@ -170,39 +183,74 @@ public class DScriptParser {
 		if(this.isPosition) {
 			this.currentPosition += charToAdd;
 		} else {
-			this.currentString += charToAdd;
+			if(this.isLigatureID) {
+				this.currentLigatureID += charToAdd;
+			} else {
+				this.currentString += charToAdd;
+			}
 		}
 	}
 
 	/**
-	 * Interprets the '<' char it ends the block and raises the Normscriptlevel
+	 * Interprets the '(' char. 
 	 */
-	private void openNormscript() throws Exception{
-		endBlock();
-		if(this.normscriptLevel < 2) {
-			this.normscriptLevel++;
-		} else {
-			throw new Exception("Parsing Error: Unmatched '<'");
+	private void openLigature() throws Exception{
+		if(this.isLigature) {
+			throw new Exception("Parsing Error: Unmatched '('");
 		}
+		
+		endBlock();
+		this.isLigature = true;
+		this.isLigatureID = false;
 	}
-
+	
 	/**
-	 * Interprets the '>' char it ends the block and lowers the Normscriptlevel
+	 * Interprets the '|' char
 	 */
-	private void closeNormscript() throws Exception{
+	private void toggleLigature() throws Exception {
 		endBlock();
-		if(this.normscriptLevel > 0) {
-			this.normscriptLevel--;
-		} else {
-			throw new Exception("Parsing Error: Unmatched '>'");
+		
+		if(!this.isLigature) {
+			throw new Exception("Parsing Error: Missing '('");
 		}
+		
+		if(this.isLigatureID) {
+			throw new Exception("Parsing Error: Missing ')'");
+		}
+		this.isLigatureID = true;
 	}
-
+	
+	/**
+	 * Interprets the ')' char. 
+	 */
+	private void closeLigature() throws Exception {
+		if(!this.isLigature) {
+			throw new Exception("Parsing Error: Missing '('");
+		}
+		
+		if(!this.isLigatureID) {
+			throw new Exception("Parsing Error: Missing '|'");
+		}
+		
+		System.out.println("Ligature "+this.rootBlocks.peek().getText()+" - "+this.currentLigatureID);
+		
+		DScriptBlock ligature = this.rootBlocks.peek();
+		ligature.setLigatureID(this.currentLigatureID);
+		
+		this.currentLigatureID = "";
+		this.isLigatureID = false;
+		this.isLigature = false;
+	}	
+	
 	/**
 	 * Interprets the '{' char. Prepares the current root for side chains
 	 */
-	private void openSideChain() {
+	private void openSideChain() throws Exception{
 		endBlock();
+		
+		if(this.isLigature) {
+			throw new Exception("Parsing Error: Unmatched '('");
+		}
 
 		DScriptBlock oldRoot = this.rootBlocks.peek();
 		this.rootBlocks.push(oldRoot);
@@ -294,7 +342,6 @@ public class DScriptParser {
 		}
 
 		DScriptBlock newBlock = new DScriptBlock();
-		newBlock.setNormscriptlevel(this.normscriptLevel);
 		newBlock.setText(this.currentString);
 
 		if(!this.rootBlocks.isEmpty()) {
@@ -316,8 +363,8 @@ public class DScriptParser {
 	 * @throws Exception Throws a Exception if there is a parsing Error
 	 */
 	private void endParsing() throws Exception {
-		if(this.normscriptLevel>0) {
-			throw new Exception("Parsing Error: Unmatched '<'");
+		if(this.isLigatureID || this.isLigature) {
+			throw new Exception("Parsing Error: Unmatched '('");
 		}
 		
 		if(this.isPosition) {
@@ -339,17 +386,17 @@ public class DScriptParser {
 	/*
 	 * Testcases that may cause Problems
 	 * 
-	 * 1{[l]2 [cm] 3<4>}
+	 * 1{[l]2 [cm] 3}
 	 * 
-	 * 1{[l]2 [cm] 3<4>}5
+	 * 1{[l]2 [cm] 34}5
 	 * 
-	 * 1{ [l]2 {[r]<3> [cm]4} [cm]<<5>}6>
+	 * 1{ [l]2 {[r]3 [cm]4} [cm]5}6
 	 * 
 	 */
 	
 	/*
 	 * Example of a Parsing run (Visualization of the Stack while reading)
-	 * 1{ [l]2 {[r]<3> [cm]4} [cm]<<5>}6>
+	 * 1{ [l]2 {[r]3 [cm]4} [cm]5}6
 	 * 
 	 * Char:	Stack From bottom to top:
 	 * 1		-
@@ -363,28 +410,23 @@ public class DScriptParser {
 	 * [		1,2		->	1,2,2		Pop Top; Add Duplicate of Top to Top
 	 * r								No change (Reading)
 	 * ]								No change (Changes Reading Position)
-	 * <								No change (Changes Normscript Level)
 	 * 4								No change (Reading)
-	 * >		1,2,4					End Block; (Changes Normscript Level)
-	 * }		1,2		->	1,1			Pop Top;  Pops Old Top, Adds End Of Old Top To Stack
+	 * }		1,2,4	->	1,1			EndBlock; Pop Top;  Pops Old Top, Adds End Of Old Top To Stack
 	 *  
 	 * [		1		->	1,1			Pop Top; Add Duplicate of Top to Top
 	 * c								No change (Reading)
 	 * m								No change (Reading)
 	 * ]								No change (Changes Reading Position)
-	 * <								No change (Changes Normscript Level)
-	 * <								No change (Changes Normscript Level)
 	 * 5								No change (Reading)
-	 * >		1,5						End Block; (Changes Normscript Level)
-	 * }		1		->	5			Pop Top;  Pops Old Top, Adds End Of Old Top To Stack
+	 * }		1,5		->	5			EndBlock; Pop Top;  Pops Old Top, Adds End Of Old Top To Stack
 	 * 6								No change (Reading)
-	 * >		6						End Block; (Changes Normscript Level)
+	 * 			6						End Block; (Changes Normscript Level)
 	 * 									END WORD
 	 * 
 	 * Output
-	 * 1 -[l ]- 2	  -[r ]- <3>
+	 * 1 -[l ]- 2	  -[r ]- 3
 	 * 				  -[cm]- 4
-	 * 	 -[cm]- <<5>> -[cm]- <6>
+	 * 	 -[cm]- 5 	  -[cm]- 6
 	 */
 	
 }

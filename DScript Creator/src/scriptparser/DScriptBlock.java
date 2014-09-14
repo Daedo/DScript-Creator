@@ -6,13 +6,13 @@ public class DScriptBlock {
 	private HashMap<String,DScriptBlock> chains;
 	private String text;
 	private String main;
-	private int normscriptlevel;
+	private String ligatureID;
 
 	public DScriptBlock() {
 		this.chains = new HashMap<>();
 		this.text = "";
 		this.main = "";
-		this.normscriptlevel = 0;
+		this.ligatureID = "";
 	}
 
 	public String getText() {
@@ -28,15 +28,12 @@ public class DScriptBlock {
 		this.text = newText;
 	}
 
-	public int getNormscriptlevel() {
-		return this.normscriptlevel;
+	public String getLigatureID() {
+		return ligatureID;
 	}
 
-	public void setNormscriptlevel(int newNormscriptlevel) {
-		boolean isValidLevel = newNormscriptlevel>=0 && newNormscriptlevel<=2;
-		if(isValidLevel) {
-			this.normscriptlevel = newNormscriptlevel;
-		}
+	public void setLigatureID(String ligatureID) {
+		this.ligatureID = ligatureID;
 	}
 
 	public static boolean isValidPosition(String position) {
@@ -247,13 +244,13 @@ public class DScriptBlock {
 	}
 	
 	/**
-	 * Compares the Normscriptlevel of two Blocks. Returns true if they are identical
+	 * Compares the LigatueID of two Blocks. Returns true if they are identical
 	 * 
 	 * @param testBlock the Block to compare
 	 * @return Returns True if the levels match
 	 */
 	public boolean hasMatchingProperties(DScriptBlock testBlock) {
-		if(this.normscriptlevel == testBlock.getNormscriptlevel()) {
+		if(this.ligatureID == testBlock.getLigatureID() && this.ligatureID == "") {
 			return true;
 		}
 		return false;
@@ -266,20 +263,13 @@ public class DScriptBlock {
 
 		String output = tabs+this.text;
 
-		switch(this.normscriptlevel) {
-		case 0: output+=" - No Normscript";
-		break;
-		case 1: output+=" - Weak Normscript";
-		break;
-		case 2: output+=" - Strong Normscript";
-		break;
-		default:
-			break;
-		}
-
 		output +=" - Sub Chains: "+this.chains.size()+ " - Required Width: "+this.getWidth()+" ( l: "+getLeftSpace()+" r: "+getRightSpace()+")";
 		if(this.getMainChainPosition()!="") {
 			output += " - Main Chain: ["+this.getMainChainPosition().toUpperCase()+"]";
+		}
+		
+		if(this.ligatureID!="") {
+			output += " - Ligature ID: "+ligatureID;
 		}
 		System.out.println(output);
 
