@@ -2,9 +2,12 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.TextArea;
+import java.awt.TextField;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
@@ -16,14 +19,20 @@ import net.miginfocom.swing.MigLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 public class MainGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextArea textArea;
-
+	private String documentPath;	//Path to the currently opened file
 	/**
 	 * Launch the application.
 	 */
@@ -49,8 +58,76 @@ public class MainGUI extends JFrame {
 	 */
 	public MainGUI() {
 		
+		documentPath = "";
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 640, 480);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNew = new JMenuItem("New");
+		mntmNew.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//TODO check for unsafed changes
+				
+				System.out.println("New");
+				
+				textArea.setText("");
+				
+			}
+		});
+		mnFile.add(mntmNew);
+		
+		JMenuItem mntmOpen = new JMenuItem("Open");
+		mntmOpen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				//TODO check for unsafed changes
+				
+				System.out.println("Open");
+				
+				String path = getOpenFilename();
+				String contend = loadFile(path);
+				textArea.setText(contend);
+				documentPath = path;
+			}
+		});
+		mnFile.add(mntmOpen);
+		
+		JMenuItem mntmSave = new JMenuItem("Save");
+		mntmSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				System.out.println("Save");
+				if(documentPath!="") {
+					saveFile(documentPath);
+				} else {
+					String path = getSaveFilename();
+					saveFile(path);
+					documentPath = path;
+				}
+			}
+		});
+		mnFile.add(mntmSave);
+		
+		JMenuItem mntmSaveAs = new JMenuItem("Save As...");
+		mntmSaveAs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				System.out.println("Save As...");
+				String path = getSaveFilename();
+				saveFile(path);
+				documentPath = path;
+			}
+		});
+		mnFile.add(mntmSaveAs);
+		
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(1, 1, 1, 1));
 		setContentPane(contentPane);
@@ -101,7 +178,16 @@ public class MainGUI extends JFrame {
 		return "";
 	}
 	
-	
+	private String getSaveFilename() {
+		JFileChooser fileDialog = new JFileChooser("Select File to open");
+		int choice = fileDialog.showSaveDialog(this);
+		
+		if(choice == JFileChooser.APPROVE_OPTION) {
+			File openFile= fileDialog.getSelectedFile();
+			return openFile.getAbsolutePath();
+		}
+		return "";
+	}
 	
 	/**
 	 * Opens a File and Loads it into the multi-line View
@@ -143,7 +229,25 @@ public class MainGUI extends JFrame {
 	 * 
 	 * @param filePath Path to the File
 	 */
-	private static void saveFile(String filePath) {
-		//TODO Save Method
+	private void saveFile(String filePath) {
+		try {
+			File file = new File(filePath);
+			if(!file.exists()) {
+				file.createNewFile();
+			} else {
+				int choice = JOptionPane.showConfirmDialog(this, "File already exists. Overwrite it?");
+				if(choice != JOptionPane.OK_OPTION) {
+					return;
+				}
+			}
+			
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(textArea.getText());
+			bw.close();
+		}
+		catch(Exception e) {
+			System.out.println("Error while writing: "+e.getMessage());
+		}
 	}
 }
