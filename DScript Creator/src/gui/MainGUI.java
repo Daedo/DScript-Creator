@@ -2,9 +2,6 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.TextArea;
-import java.awt.TextField;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
