@@ -137,29 +137,33 @@ public class MainGUI extends JFrame {
 		contentPane.add(InputPanel, "cell 0 1,growx,aligny bottom");
 		InputPanel.setLayout(new MigLayout("", "[100%][80px]", "[100%]"));
 		
-		JButton btnTranslate = new JButton("Translate");
-		InputPanel.add(btnTranslate, "cell 1 0,alignx right,aligny center");
-		
 		textArea = new JTextArea();
 		InputPanel.add(textArea, "cell 0 0,grow");
+		
+		JButton btnTranslate = new JButton("Translate");
+		InputPanel.add(btnTranslate, "cell 1 0,alignx right,aligny center");
 		btnTranslate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String areaText = textArea.getText();
-				//System.out.println(areaText);
-				parseText(areaText);
+				translateText();
 			}
 		});
 		
 		btnTranslate.setPreferredSize( new Dimension(60, 20));
 	}
 
+	private void translateText() {
+		String areaText = textArea.getText();
+		//System.out.println(areaText);
+		parseText(areaText);
+	}
+	
 	public static void parseText(String text) {
 		
 		String[] lines = text.split("\\n");
 		
 		for(String line:lines) {
 			System.out.println("Line: ");
-			DScriptCreator.runParser(line);
+			DScriptCreator.runParser(line);			
 			System.out.println("");
 		}
 	}

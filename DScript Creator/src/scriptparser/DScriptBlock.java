@@ -16,10 +16,29 @@ public class DScriptBlock {
 		this.ligatureID = "";
 	}
 
+	public static boolean isValidPosition(String position) {
+		String posRegexp= "(i|r|l|c)m?";
+		return position.matches(posRegexp);
+	}
+	
+	//---------- Getter/Setter ----------
 	public String getText() {
 		return this.text;
 	}
+
+	public void setText(String newText) {
+		this.text = newText;
+	}
+
+	public String getLigatureID() {
+		return ligatureID;
+	}
+
+	public void setLigatureID(String ligatureID) {
+		this.ligatureID = ligatureID;
+	}
 	
+	//---------- Text ----------
 	/**
 	 * Returns the text in a written version. The order of the Subchains follows the original DScript rules
 	 * (left, right, inside, bottom)
@@ -61,29 +80,75 @@ public class DScriptBlock {
 		return writtenText;
 	}
 	
+	//TODO Mainchain should be continued after the {}
+	// 1{[l]2 [cm] (34|L7)}5 -/-> 1{[cm] (34|L7){[cm] 5}[l] 2}
+	//FIXME 1{[cm] (34|L7){[cm] 5}[l] 2} causes Invalid Ligature Error
 	
+	/**
+	 * Returns the code, that would create this Block
+	 * 
+	 * @return Returns the code as a String 
+	 */
+	public String getCodeText() {
+		String ownText = "";
+		if(this.ligatureID == "") {
+			ownText = this.text;
+		} else {
+			ownText = "("+this.text+"|"+this.ligatureID+")";
+		}
+		
+		String subText = "";
+		
+		boolean hasSubchains = ! getSubchains().isEmpty();
+		if(hasSubchains) {
+			
+			subText="{";
+			
+			if(chainExist("c")) {
+				
+				String pos = "c";
+				if(getMainChainPosition().equals(pos)) {
+					pos+="m";
+				}
+				
+				subText += "["+pos+"] "+getChain("c").getCodeText();
+			}
+			
+			if(chainExist("l")) {
+				String pos = "l";
+				if(getMainChainPosition().equals(pos)) {
+					pos+="m";
+				}
+				
+				subText += "["+pos+"] "+getChain("l").getCodeText();
+			}
+			
+			if(chainExist("r")) {
+				String pos = "r";
+				if(getMainChainPosition().equals(pos)) {
+					pos+="m";
+				}
+				
+				subText += "["+pos+"] "+getChain("r").getCodeText();
+			}
+			
+			if(chainExist("i")) {
+				String pos = "i";
+				//Inside is never a main Chain
+				subText += "["+pos+"] "+getChain("i").getCodeText();
+			}
+			
+			subText +="}";
+		}
+		
+		return ownText+subText;
+	}
 	
-
-	public void setText(String newText) {
-		this.text = newText;
-	}
-
-	public String getLigatureID() {
-		return ligatureID;
-	}
-
-	public void setLigatureID(String ligatureID) {
-		this.ligatureID = ligatureID;
-	}
-
-	public static boolean isValidPosition(String position) {
-		String posRegexp= "(i|r|l|c)m?";
-		return position.matches(posRegexp);
-	}
-
+	//---------- Subchains ----------
 	public void addChain(String position,DScriptBlock subChain) {
 		//Inside Chains can not continue the main chain
 		boolean isMain = position.matches("[^i]m");
+		boolean isValidPosition = position.matches("(l|r|i|c)m?");
 		String realPosition = position.substring(0, 1);
 
 		boolean isFreePosition = !this.chains.containsKey(realPosition);
@@ -92,7 +157,7 @@ public class DScriptBlock {
 
 		boolean isValidBlock = (subChain != null);		
 
-		if(isValidPosition(position) && isFreePosition && isValidMain && isValidBlock) {
+		if(isValidPosition(position) && isFreePosition && isValidMain && isValidBlock && isValidPosition) {
 			this.chains.put(realPosition, subChain);
 			if(isMain) {
 				this.main = realPosition;
@@ -108,6 +173,31 @@ public class DScriptBlock {
 		return this.chains.containsKey(position);
 	}
 
+	/**
+	 * @return Returns a Vector with all Subchains
+	 */
+	public Vector<DScriptBlock> getSubchains() {
+		Vector<DScriptBlock> subchains = new Vector<>();
+		
+		if(this.chains.containsKey("c")) {
+		 	subchains.add(this.chains.get("c"));
+		}
+
+		if(this.chains.containsKey("r")) {
+			subchains.add(this.chains.get("r"));
+		}
+
+		if(this.chains.containsKey("l")) {
+			subchains.add(this.chains.get("l"));
+		}
+
+		if(this.chains.containsKey("i")) {
+			subchains.add(this.chains.get("i"));
+		}
+		
+		return subchains;
+	}
+	
 	public String getMainChainPosition() {
 		return this.main;
 	}
@@ -140,7 +230,8 @@ public class DScriptBlock {
 		}
 		return this.getMainChain().getMainChainEnd();
 	}
-
+	
+	//---------- Space Methods ----------
 	/**
 	 * Calculates the width of the entire Word
 	 * 
@@ -224,6 +315,7 @@ public class DScriptBlock {
 		return width;
 	}
 
+	//---------- Concatenate Method ----------
 	/**
 	 * Combines Fitting center Chain together into one single chain
 	 * 
@@ -296,6 +388,7 @@ public class DScriptBlock {
 		return false;
 	}
 
+	//---------- Debug Method ----------
 	public void debugBlocks(int recursionLevel) {
 		String tabs = "";
 
@@ -343,36 +436,12 @@ public class DScriptBlock {
 		}
 	}
 
+	//---------- Ligature Methods ----------
 	public boolean isValidLigature() {
 		if(this.ligatureID=="") {
 			return true;
 		}
 		return this.ligatureID.matches("L?\\\\d+");
-	}
-
-	/**
-	 * @return Returns a Vector with all Subblocks
-	 */
-	public Vector<DScriptBlock> getSubblocks() {
-		Vector<DScriptBlock> subblocks = new Vector<>();
-		
-		if(this.chains.containsKey("c")) {
-		 	subblocks.add(this.chains.get("c"));
-		}
-
-		if(this.chains.containsKey("r")) {
-			subblocks.add(this.chains.get("r"));
-		}
-
-		if(this.chains.containsKey("l")) {
-			subblocks.add(this.chains.get("l"));
-		}
-
-		if(this.chains.containsKey("i")) {
-			subblocks.add(this.chains.get("i"));
-		}
-		
-		return subblocks;
 	}
 	
 	/**
@@ -418,7 +487,7 @@ public class DScriptBlock {
 		}
 		//Recursion with all Subblocks
 		
-		Vector<DScriptBlock> subblocks = getSubblocks();
+		Vector<DScriptBlock> subblocks = getSubchains();
 		
 		for(DScriptBlock subblock: subblocks) {
 			Vector<DScriptLigature> subLigatures = subblock.getLigatures();

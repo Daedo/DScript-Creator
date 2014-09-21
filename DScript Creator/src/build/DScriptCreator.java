@@ -25,6 +25,8 @@ public class DScriptCreator {
 			for(DScriptBlock word:parsedText) {
 				System.out.println("Word:");
 				word.debugBlocks(0);
+				System.out.println("----------");
+				System.out.println(word.getCodeText());
 				System.out.println("");
 				
 				word.concatenateChains();
