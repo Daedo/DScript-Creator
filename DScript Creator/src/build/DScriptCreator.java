@@ -14,7 +14,7 @@ public class DScriptCreator {
 		try {
 			isSucessfull = parser.parseText();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 		}
 
 		if(isSucessfull) {
@@ -26,6 +26,7 @@ public class DScriptCreator {
 				System.out.println("Word:");
 				word.debugBlocks(0);
 				System.out.println("----------");
+				System.out.println("Recode:");
 				System.out.println(word.getCodeText());
 				System.out.println("");
 				

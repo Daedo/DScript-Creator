@@ -82,7 +82,6 @@ public class DScriptBlock {
 	
 	//TODO Mainchain should be continued after the {}
 	// 1{[l]2 [cm] (34|L7)}5 -/-> 1{[cm] (34|L7){[cm] 5}[l] 2}
-	//FIXME 1{[cm] (34|L7){[cm] 5}[l] 2} causes Invalid Ligature Error
 	
 	/**
 	 * Returns the code, that would create this Block
@@ -407,7 +406,7 @@ public class DScriptBlock {
 		
 		Vector<DScriptLigature> ligatures = getLigatures();
 		for (DScriptLigature ligature: ligatures) {
-			output+= "\n"+ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
+			output+= "\n"+tabs+ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
 		}
 		
 		System.out.println(output);
@@ -441,7 +440,7 @@ public class DScriptBlock {
 		if(this.ligatureID=="") {
 			return true;
 		}
-		return this.ligatureID.matches("L?\\\\d+");
+		return this.ligatureID.matches("L?\\d+");
 	}
 	
 	/**
@@ -456,7 +455,7 @@ public class DScriptBlock {
 		if(this.ligatureID!="") {
 			if(isValidLigature()) {
 				DScriptLigature ligature;
-				if(this.ligatureID.matches("L\\\\d+")) {
+				if(this.ligatureID.matches("L\\d+")) {
 					String LID = this.ligatureID.replaceAll("L", "");
 					int ligID = Integer.parseInt(LID);
 					ligature = new DScriptLigature(ligID);
