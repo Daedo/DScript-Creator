@@ -3,11 +3,20 @@ package build;
 import java.util.Vector;
 
 import scriptparser.DScriptBlock;
+import scriptparser.DScriptLine;
 import scriptparser.DScriptParser;
 
 public class DScriptCreator {
 
-	public static void runParser(String testString) {
+	/**
+	 * Takes a Line of Text an parses it into a {@link DScriptLine} Instance
+	 * 
+	 * @param testString The String to parse
+	 * @return Returns a {@link DScriptLine} Instance
+	 */
+	public static DScriptLine runParser(String testString) {
+		DScriptLine line = null;
+		
 		DScriptParser parser = new DScriptParser(testString);
 		boolean isSucessfull = false;
 
@@ -18,27 +27,17 @@ public class DScriptCreator {
 		}
 
 		if(isSucessfull) {
-			System.out.println("Sucess");
-			System.out.println("");
 			Vector<DScriptBlock> parsedText = parser.getParsedText();
-
+			line = new DScriptLine();
+			
 			for(DScriptBlock word:parsedText) {
-				System.out.println("Word:");
-				word.debugBlocks(0);
-				System.out.println("----------");
-				System.out.println("Recode:");
-				System.out.println(word.getCodeText());
-				System.out.println("");
-				
 				word.concatenateChains();
-				System.out.println("Word Concatenated:");
-				word.debugBlocks(0);
-				System.out.println("");
+				line.addWord(word);
 			}
-
 		} else {
-			System.out.println("Failure");
+			System.err.println("Failure");
 		}
-
+		
+		return line;
 	}
 }

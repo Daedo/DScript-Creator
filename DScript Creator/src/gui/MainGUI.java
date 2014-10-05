@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +25,9 @@ import java.io.FileWriter;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
+import scriptparser.DScriptLine;
+import scriptparser.DScriptText;
 
 public class MainGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -150,18 +154,27 @@ public class MainGUI extends JFrame {
 	private void translateText() {
 		String areaText = textArea.getText();
 		//System.out.println(areaText);
-		parseText(areaText);
+		DScriptText parsedText = parseText(areaText);
+		parsedText.debugText();
 	}
 	
-	public static void parseText(String text) {
+	/**
+	 * Parses a given String and returns a {@link DScriptText} instance
+	 * 
+	 * @param text The String, that is to parse
+	 * @return Returns a {@link DScriptText} instance
+	 */
+	public static DScriptText parseText(String text) {
 		
 		String[] lines = text.split("\\n");
+		DScriptText parsedText = new DScriptText();
 		
 		for(String line:lines) {
-			System.out.println("Line: ");
-			DScriptCreator.runParser(line);			
-			System.out.println("");
+			DScriptLine parsedLine = DScriptCreator.runParser(line);
+			parsedText.addLine(parsedLine);
 		}
+		
+		return parsedText;
 	}
 	
 	private String getOpenFilename() {
