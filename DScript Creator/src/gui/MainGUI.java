@@ -21,11 +21,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Vector;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import database.Database;
+import scriptparser.DScriptLigature;
 import scriptparser.DScriptLine;
 import scriptparser.DScriptText;
 
@@ -38,6 +41,16 @@ public class MainGUI extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		//Debug Code
+		Database DB = new Database("LigatureDatabase.db");
+		DB.connect();
+		DB.getText(1);
+		DB.getFileURI(1);
+		DB.getTextID(1);
+		DB.getLigatureID(1, "B");
+		DB.disconnect();
+		//Main Code
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -155,7 +168,14 @@ public class MainGUI extends JFrame {
 		String areaText = textArea.getText();
 		//System.out.println(areaText);
 		DScriptText parsedText = parseText(areaText);
-		parsedText.debugText();
+		//parsedText.debugText();
+		
+		Vector<DScriptLigature> ligatures =  parsedText.getLigatures();
+		for(DScriptLigature ligature:ligatures) {
+			String lig = ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
+			System.out.println(lig);
+		}
+		
 	}
 	
 	/**

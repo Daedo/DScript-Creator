@@ -39,4 +39,20 @@ public class DScriptLine {
 			System.out.println("");
 		}
 	}
+	
+	public Vector<DScriptLigature> getLigatures() {
+		Vector<DScriptLigature> ligatures = new Vector<>();
+		
+		for(DScriptBlock word:this.words) {
+			Vector<DScriptLigature> subLigatures = word.getLigatures();
+			
+			for(DScriptLigature subLigature: subLigatures) {
+				if(!ligatures.contains(subLigature)) {
+					ligatures.add(subLigature);
+				}
+			}
+		}
+		
+		return ligatures;
+	}
 }

@@ -29,4 +29,19 @@ public class DScriptText {
 			System.out.println("");
 		}
 	}
+	
+	public Vector<DScriptLigature> getLigatures() {
+		Vector<DScriptLigature> ligatures = new Vector<>();
+		for(DScriptLine line:this.lines) {
+			Vector<DScriptLigature> subLigatures = line.getLigatures();
+			
+			for(DScriptLigature subLigature: subLigatures) {
+				if(!ligatures.contains(subLigature)) {
+					ligatures.add(subLigature);
+				}
+			}
+		}
+		
+		return ligatures;
+	}
 }
