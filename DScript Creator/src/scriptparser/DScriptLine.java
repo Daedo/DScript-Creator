@@ -33,7 +33,7 @@ public class DScriptLine {
 		System.out.println("DScript Line:");
 		System.out.println("Wordcount: "+getWordcount());
 		
-		for(DScriptBlock word:words) {
+		for(DScriptBlock word:this.words) {
 			System.out.println("Word: ");
 			word.debugBlocks(0);
 			System.out.println("");
@@ -54,5 +54,12 @@ public class DScriptLine {
 		}
 		
 		return ligatures;
+	}
+
+	public void buildLine() {
+		for(DScriptBlock word:this.words) {
+			//build Word isStart, inDirection
+			//word.buildBlock("c", true);
+		}
 	}
 }

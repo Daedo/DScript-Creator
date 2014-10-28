@@ -146,7 +146,6 @@ public class DScriptParser {
 		}
 	}
 
-
 	/**
 	 * Initializes the variables for parsing
 	 */
@@ -183,6 +182,7 @@ public class DScriptParser {
 				this.currentLigatureID += charToAdd;
 			} else {
 				this.currentString += charToAdd;
+				endBlock();
 			}
 		}
 	}
@@ -376,6 +376,7 @@ public class DScriptParser {
 	public Vector<DScriptBlock> getParsedText() {
 		return this.parsedText; 
 	}
+	
 	
 	/*
 	 * Testcases that may cause Problems

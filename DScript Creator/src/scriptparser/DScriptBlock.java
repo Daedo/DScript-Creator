@@ -3,6 +3,8 @@ package scriptparser;
 import java.util.HashMap;
 import java.util.Vector;
 
+import build.DScriptBuilder;
+
 public class DScriptBlock {
 	private HashMap<String,DScriptBlock> chains;
 	private String text;
@@ -31,7 +33,7 @@ public class DScriptBlock {
 	}
 
 	public String getLigatureID() {
-		return ligatureID;
+		return this.ligatureID;
 	}
 
 	public void setLigatureID(String ligatureID) {
@@ -401,7 +403,7 @@ public class DScriptBlock {
 		}
 
 		if(this.ligatureID!="") {
-			output += " - Ligature ID: "+ligatureID;
+			output += " - Ligature ID: "+this.ligatureID;
 		}
 		
 		Vector<DScriptLigature> ligatures = getLigatures();

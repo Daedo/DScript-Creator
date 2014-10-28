@@ -44,4 +44,10 @@ public class DScriptText {
 		
 		return ligatures;
 	}
+
+	public void buildText() {
+		for(DScriptLine line: this.lines) {
+			line.buildLine();
+		}
+	}
 }

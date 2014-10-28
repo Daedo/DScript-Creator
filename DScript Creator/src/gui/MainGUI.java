@@ -31,6 +31,7 @@ import database.Database;
 import scriptparser.DScriptLigature;
 import scriptparser.DScriptLine;
 import scriptparser.DScriptText;
+import scriptparser.DScriptTreePrinter;
 
 public class MainGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -68,7 +69,7 @@ public class MainGUI extends JFrame {
 	 */
 	public MainGUI() {
 		
-		documentPath = "";
+		this.documentPath = "";
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 640, 480);
@@ -87,7 +88,7 @@ public class MainGUI extends JFrame {
 				
 				System.out.println("New");
 				
-				textArea.setText("");
+				MainGUI.this.textArea.setText("");
 				
 			}
 		});
@@ -103,8 +104,8 @@ public class MainGUI extends JFrame {
 				
 				String path = getOpenFilename();
 				String contend = loadFile(path);
-				textArea.setText(contend);
-				documentPath = path;
+				MainGUI.this.textArea.setText(contend);
+				MainGUI.this.documentPath = path;
 			}
 		});
 		mnFile.add(mntmOpen);
@@ -114,12 +115,12 @@ public class MainGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				System.out.println("Save");
-				if(documentPath!="") {
-					saveFile(documentPath);
+				if(MainGUI.this.documentPath!="") {
+					saveFile(MainGUI.this.documentPath);
 				} else {
 					String path = getSaveFilename();
 					saveFile(path);
-					documentPath = path;
+					MainGUI.this.documentPath = path;
 				}
 			}
 		});
@@ -132,26 +133,26 @@ public class MainGUI extends JFrame {
 				System.out.println("Save As...");
 				String path = getSaveFilename();
 				saveFile(path);
-				documentPath = path;
+				MainGUI.this.documentPath = path;
 			}
 		});
 		mnFile.add(mntmSaveAs);
 		
 		
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(1, 1, 1, 1));
-		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[100%]", "[75%][:25%:25%,bottom]"));
+		this.contentPane = new JPanel();
+		this.contentPane.setBorder(new EmptyBorder(1, 1, 1, 1));
+		setContentPane(this.contentPane);
+		this.contentPane.setLayout(new MigLayout("", "[100%]", "[75%][:25%:25%,bottom]"));
 		
 		JPanel ScriptPanel = new JPanel();
-		contentPane.add(ScriptPanel, "cell 0 0,grow");
+		this.contentPane.add(ScriptPanel, "cell 0 0,grow");
 		
 		JPanel InputPanel = new JPanel();
-		contentPane.add(InputPanel, "cell 0 1,growx,aligny bottom");
+		this.contentPane.add(InputPanel, "cell 0 1,growx,aligny bottom");
 		InputPanel.setLayout(new MigLayout("", "[100%][80px]", "[100%]"));
 		
-		textArea = new JTextArea();
-		InputPanel.add(textArea, "cell 0 0,grow");
+		this.textArea = new JTextArea();
+		InputPanel.add(this.textArea, "cell 0 0,grow");
 		
 		JButton btnTranslate = new JButton("Translate");
 		InputPanel.add(btnTranslate, "cell 1 0,alignx right,aligny center");
@@ -164,13 +165,14 @@ public class MainGUI extends JFrame {
 		btnTranslate.setPreferredSize( new Dimension(60, 20));
 	}
 
-	private void translateText() {
-		String areaText = textArea.getText();
+	void translateText() {
+		String areaText = this.textArea.getText();
 		//System.out.println(areaText);
 		DScriptText parsedText = parseText(areaText);
-		//parsedText.debugText();
+		parsedText.debugText();
 		
 		Vector<DScriptLigature> ligatures =  parsedText.getLigatures();
+		
 		for(DScriptLigature ligature:ligatures) {
 			String lig = ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
 			System.out.println(lig);
@@ -208,7 +210,7 @@ public class MainGUI extends JFrame {
 		return "";
 	}
 	
-	private String getSaveFilename() {
+	String getSaveFilename() {
 		JFileChooser fileDialog = new JFileChooser("Select File to open");
 		int choice = fileDialog.showSaveDialog(this);
 		
@@ -273,7 +275,7 @@ public class MainGUI extends JFrame {
 			
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(textArea.getText());
+			bw.write(this.textArea.getText());
 			bw.close();
 		}
 		catch(Exception e) {

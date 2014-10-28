@@ -31,7 +31,7 @@ public class DScriptCreator {
 			line = new DScriptLine();
 			
 			for(DScriptBlock word:parsedText) {
-				word.concatenateChains();
+				//word.concatenateChains();
 				line.addWord(word);
 			}
 		} else {
