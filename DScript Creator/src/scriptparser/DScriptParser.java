@@ -229,7 +229,7 @@ public class DScriptParser {
 		}
 		
 		DScriptBlock ligature = this.rootBlocks.peek();
-		ligature.setLigatureID(this.currentLigatureID);
+		ligature.setIDFromString(this.currentLigatureID);
 		
 		this.currentLigatureID = "";
 		this.isLigatureID = false;

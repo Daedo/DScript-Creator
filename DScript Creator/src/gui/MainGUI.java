@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
+import build.DSVGParser;
 import build.DScriptCreator;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,17 +22,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.Vector;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import database.Database;
-import scriptparser.DScriptLigature;
 import scriptparser.DScriptLine;
 import scriptparser.DScriptText;
-import scriptparser.DScriptTreePrinter;
 
 public class MainGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -44,13 +42,24 @@ public class MainGUI extends JFrame {
 	public static void main(String[] args) {
 		
 		//Debug Code
-		Database DB = new Database("LigatureDatabase.db");
+		/*Database DB = new Database("LigatureDatabase.db");
 		DB.connect();
 		DB.getText(1);
 		DB.getFileURI(1);
 		DB.getTextID(1);
 		DB.getLigatureID(1, "B");
-		DB.disconnect();
+		DB.disconnect();*/
+		try {
+			DSVGParser.parseDSVGFile("C:/Users/Dominik/Desktop/Programmieren/Java/DScript/DSVG DEMO FILE.dsvg",0);
+			//DSVGParser.parseDSVGFile("C:/Users/Dominik/Desktop/Programmieren/Java/git/DScript Creator/DScript Creator/Ligatures/Basic/a1.dsvg",0);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
+		
 		//Main Code
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -170,13 +179,6 @@ public class MainGUI extends JFrame {
 		//System.out.println(areaText);
 		DScriptText parsedText = parseText(areaText);
 		parsedText.debugText();
-		
-		Vector<DScriptLigature> ligatures =  parsedText.getLigatures();
-		
-		for(DScriptLigature ligature:ligatures) {
-			String lig = ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
-			System.out.println(lig);
-		}
 		
 	}
 	

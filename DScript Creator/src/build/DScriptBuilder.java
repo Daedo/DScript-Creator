@@ -1,7 +1,6 @@
 package build;
 
 import scriptparser.DScriptBlock;
-import scriptparser.DScriptLigature;
 
 public class DScriptBuilder {
 	
@@ -18,11 +17,13 @@ public class DScriptBuilder {
 	public static final int BUILD_OUTPUT_CENTER	= 256;
 	public static final int BUILD_OUTPUT_INSIDE	= 512;
 	
-	public static void buildWord(DScriptBlock wordStart,int flag) {
-		
+	public static DScriptVector buildWord(DScriptBlock wordStart,int flag) {
+		//Get DScriptBlock
+		//Get LigatureID/TextID & DSVG File
+		//Build File with the provided flags -> DOM
+		//DOM -> DScriptVector
+		//Iterate over DScript Vector (Breadth First) Iterate over Vectors
+		return null;
 	}
 	
-	public static void buildBlock(DScriptBlock block,int flag) {
-		
-	}
 }

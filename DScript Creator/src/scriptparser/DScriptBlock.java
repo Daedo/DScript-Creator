@@ -8,14 +8,16 @@ import build.DScriptBuilder;
 public class DScriptBlock {
 	private HashMap<String,DScriptBlock> chains;
 	private String text;
-	private String main;
-	private String ligatureID;
+	private String mainChain;
+	private int ligatureID;
+	private int textID;
 
 	public DScriptBlock() {
-		this.chains = new HashMap<>();
-		this.text = "";
-		this.main = "";
-		this.ligatureID = "";
+		this.chains 	= new HashMap<>();
+		this.text 		= "";
+		this.mainChain 	= "";
+		this.ligatureID = -1;
+		this.textID		= -1;
 	}
 
 	public static boolean isValidPosition(String position) {
@@ -32,12 +34,46 @@ public class DScriptBlock {
 		this.text = newText;
 	}
 
-	public String getLigatureID() {
+	public int getLigatureID() {
 		return this.ligatureID;
 	}
 
-	public void setLigatureID(String ligatureID) {
-		this.ligatureID = ligatureID;
+	public void setLigatureID(int newLigatureID) {
+		this.ligatureID = newLigatureID;
+	}
+	
+	public int getTextID() {
+		return this.textID;
+	}
+
+	public void setTextID(int newTextID) {
+		this.textID = newTextID;
+	}
+
+	/**
+	 * Changes the LigatureID or TextID from a String
+	 * LID (e.g. L56)
+	 * TID (e.g. 4)
+	 * 
+	 * @param newID The new ID from a String
+	 */
+	public void setIDFromString(String newID) {
+		String ligatureRegex = "L?\\d+";
+		boolean isValidID = newID.matches(ligatureRegex);
+		
+		if(isValidID) {
+			String LIDRegex = "L\\d+";
+			boolean isLigatureID = newID.matches(LIDRegex);
+			if(isLigatureID) {
+				//Ligature ID
+				String ID = newID.substring(1);
+				this.ligatureID=Integer.parseInt(ID);
+			} else {
+				//Text ID
+				this.textID=Integer.parseInt(newID);
+			}
+		}
+		
 	}
 	
 	//---------- Text ----------
@@ -55,28 +91,28 @@ public class DScriptBlock {
 		
 		boolean isUnignoredMainChain;
 		
-		isUnignoredMainChain = useMainChain && this.main == "l";
+		isUnignoredMainChain = useMainChain && this.mainChain == "l";
 		if(this.chains.containsKey("l") && !isUnignoredMainChain) {
 		 	writtenText += this.chains.get("l").getWrittenText(useMainChain);
 		}
 		
-		isUnignoredMainChain = useMainChain && this.main == "r";
+		isUnignoredMainChain = useMainChain && this.mainChain == "r";
 		if(this.chains.containsKey("r") && !isUnignoredMainChain) {
 		 	writtenText += this.chains.get("r").getWrittenText(useMainChain);
 		}
 		
-		isUnignoredMainChain = useMainChain && this.main == "i";
+		isUnignoredMainChain = useMainChain && this.mainChain == "i";
 		if(this.chains.containsKey("i") && !isUnignoredMainChain) {
 		 	writtenText += this.chains.get("i").getWrittenText(useMainChain);
 		}
 		
-		isUnignoredMainChain = useMainChain && this.main == "c";
+		isUnignoredMainChain = useMainChain && this.mainChain == "c";
 		if(this.chains.containsKey("c") && !isUnignoredMainChain) {
 		 	writtenText += this.chains.get("c").getWrittenText(useMainChain);
 		}
 		
 		if(useMainChain) {
-			writtenText += this.chains.get(this.main).getWrittenText(useMainChain);
+			writtenText += this.chains.get(this.mainChain).getWrittenText(useMainChain);
 		}
 
 		return writtenText;
@@ -92,7 +128,7 @@ public class DScriptBlock {
 	 */
 	public String getCodeText() {
 		String ownText = "";
-		if(this.ligatureID == "") {
+		if(this.ligatureID == -1) {
 			ownText = this.text;
 		} else {
 			ownText = "("+this.text+"|"+this.ligatureID+")";
@@ -154,14 +190,14 @@ public class DScriptBlock {
 
 		boolean isFreePosition = !this.chains.containsKey(realPosition);
 
-		boolean isValidMain = (isMain && this.main == "")||!isMain;
+		boolean isValidMain = (isMain && this.mainChain == "")||!isMain;
 
 		boolean isValidBlock = (subChain != null);		
 
 		if(isValidPosition(position) && isFreePosition && isValidMain && isValidBlock && isValidPosition) {
 			this.chains.put(realPosition, subChain);
 			if(isMain) {
-				this.main = realPosition;
+				this.mainChain = realPosition;
 			}
 		}
 	}
@@ -200,12 +236,12 @@ public class DScriptBlock {
 	}
 	
 	public String getMainChainPosition() {
-		return this.main;
+		return this.mainChain;
 	}
 
 	public DScriptBlock getMainChain() {		
-		if(this.main!="") {
-			return this.chains.get(this.main);
+		if(this.mainChain!="") {
+			return this.chains.get(this.mainChain);
 		}
 
 		if(this.chains.containsKey("c")) {
@@ -353,7 +389,7 @@ public class DScriptBlock {
 
 				this.chains.remove("c");
 
-				this.main = centerChain.getMainChainPosition();
+				this.mainChain = centerChain.getMainChainPosition();
 				this.text += centerChain.getText();
 
 				if(centerChain.chainExist("l")) {
@@ -383,7 +419,7 @@ public class DScriptBlock {
 	 * @return Returns True if the LigatureID are empty
 	 */
 	public boolean hasMatchingProperties(DScriptBlock testBlock) {
-		if(this.ligatureID == testBlock.getLigatureID() && this.ligatureID == "") {
+		if(this.ligatureID == testBlock.getLigatureID() && this.ligatureID == -1) {
 			return true;
 		}
 		return false;
@@ -402,13 +438,12 @@ public class DScriptBlock {
 			output += " - Main Chain: ["+this.getMainChainPosition().toUpperCase()+"]";
 		}
 
-		if(this.ligatureID!="") {
+		if(this.ligatureID!=-1) {
 			output += " - Ligature ID: "+this.ligatureID;
 		}
 		
-		Vector<DScriptLigature> ligatures = getLigatures();
-		for (DScriptLigature ligature: ligatures) {
-			output+= "\n"+tabs+ligature.getLigatureID()+" - "+ligature.getText()+" - "+ligature.getTextID();
+		if(this.textID!=-1) {
+			output += " - Text ID: "+this.textID;
 		}
 		
 		System.out.println(output);
@@ -437,69 +472,4 @@ public class DScriptBlock {
 		}
 	}
 
-	//---------- Ligature Methods ----------
-	public boolean isValidLigature() {
-		if(this.ligatureID=="") {
-			return true;
-		}
-		return this.ligatureID.matches("L?\\d+");
-	}
-	
-	/**
-	 * @return Returns a Vector with all Ligatures used in this block and all of its subblocks.
-	 * The Vector does not contain duplicates, unless two Ligatures are defined once by their Text ID
-	 * and by their Ligature ID at another position.
-	 */
-	public Vector<DScriptLigature> getLigatures() {
-		
-		Vector<DScriptLigature> ligatures = new Vector<>();
-		
-		if(this.ligatureID!="") {
-			if(isValidLigature()) {
-				DScriptLigature ligature;
-				if(this.ligatureID.matches("L\\d+")) {
-					String LID = this.ligatureID.replaceAll("L", "");
-					int ligID = Integer.parseInt(LID);
-					ligature = new DScriptLigature(ligID);
-				} else {
-					int ligID = Integer.parseInt(this.ligatureID);
-					ligature = new DScriptLigature(this.text,ligID);
-				}
-				
-				if(! ligatures.contains(ligature)) {
-					ligatures.add(ligature);
-				}
-				
-			} else {
-				// Error
-				System.err.println("ERROR INVALID LIGATURE");
-			}
-		} else {
-			
-			for (int i = 0;i<this.text.length();i++) {
-				String textChar = this.text.charAt(i)+"";
-				DScriptLigature ligature = new DScriptLigature(textChar,1);
-				
-				if(! ligatures.contains(ligature)) {
-					ligatures.add(ligature);
-				}
-			}
-			
-		}
-		//Recursion with all Subblocks
-		
-		Vector<DScriptBlock> subblocks = getSubchains();
-		
-		for(DScriptBlock subblock: subblocks) {
-			Vector<DScriptLigature> subLigatures = subblock.getLigatures();
-			
-			for(DScriptLigature subLigature: subLigatures) {
-				if(!ligatures.contains(subLigature)) {
-					ligatures.add(subLigature);
-				}
-			}
-		}
-		
-		return ligatures;
-	}
 }
