@@ -1,5 +1,6 @@
 package build;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Vector;
 
@@ -10,18 +11,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.TypeInfo;
-import org.w3c.dom.UserDataHandler;
 
 public class DSVGParser {
-	
+
 	/*
 	 * Used Flags:
 	 * Wordstart
@@ -29,27 +26,36 @@ public class DSVGParser {
 	 * Input c, l, r, i
 	 * Output c, l, r, i
 	 */
-	
-	
-	
-	public static Document parseDSVGFile(String FileURI, int flags) throws Exception{
+
+	public static Document parseDSVGFile(String FileURI, DScriptFlag flags) throws Exception{
 		//Open File
+
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		//Speed Workarounds: http://jdevel.wordpress.com/2011/03/28/java-documentbuilder-xml-parsing-is-very-slow/
+		factory.setNamespaceAware(false);
+		factory.setValidating(true);																//I Want to keep validation, but you might want to set it to false to increase the speed
+		factory.setFeature("http://xml.org/sax/features/namespaces", false);
+		factory.setFeature("http://xml.org/sax/features/validation", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);		
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		File DSVGFile = new File(FileURI);
+		System.out.println("Start Builder");
 		Document DSVGDocument = builder.parse(DSVGFile);
-
+		System.out.println("End Builder");
 
 
 		Element rootElement = DSVGDocument.getDocumentElement(); 
 		String rootName = rootElement.getNodeName();
 		boolean isValidSVGDocument = rootName.equals("ligature");
 
-
 		if(isValidSVGDocument) {
 			//Find a valid connection
 			NodeList childNodes = rootElement.getChildNodes();
 			int nodeCount = childNodes.getLength();
+
+			DScriptVector outputVector = null;
+
 
 			String connection = "";
 			String inputX="";
@@ -57,6 +63,26 @@ public class DSVGParser {
 			String outputX="";
 			String outputY="";
 
+
+			for(int i=0;i<nodeCount;i++) {
+				Node currentChild = childNodes.item(i);
+				String currentName = currentChild.getNodeName();
+				boolean isConnection = currentName.equals("connection");
+
+				if(isConnection) {
+					//Create Vector from Connection
+					DScriptVector connectionVector = parseConnection(currentChild);
+					//Test if the Vector(= the connection) matches the Flags
+					boolean matchingConnection = false;
+					if(matchingConnection) {
+						outputVector = connectionVector;
+						break;
+					}
+				}	
+			}
+
+			boolean hasConnection = outputVector!=null;
+			/*
 			for(int i=0;i<nodeCount;i++) {
 				Node currentChild = childNodes.item(i);
 				String currentName = currentChild.getNodeName();
@@ -78,7 +104,6 @@ public class DSVGParser {
 
 						if(isInput && !hasInput) {
 							//Check inputs
-
 							NamedNodeMap  inputAttributes = currentPoint.getAttributes();
 							String inputType = inputAttributes.getNamedItem("type").getNodeValue();
 							boolean isValid = isMatchingInput(inputType,flags);
@@ -114,9 +139,10 @@ public class DSVGParser {
 						break;
 					}
 				}
-			}
+			} 
+			boolean hasConnection = !connection.equals("");*/
 
-			boolean hasConnection = !connection.equals("");
+
 			if(hasConnection) {
 				/*System.out.println(connection);
 				System.out.println(inputX);
@@ -151,7 +177,7 @@ public class DSVGParser {
 						if(isGroup) {
 							NamedNodeMap groupAttributes = currentChild.getAttributes();
 							String condtion = groupAttributes.getNamedItem("condition").getNodeValue();
-							
+
 							boolean isMatching = isMatchingCondition(condtion, connection);
 							if(!isMatching) {
 								removeNodes.add(currentChild);
@@ -173,7 +199,7 @@ public class DSVGParser {
 					Document outDoc = builder.newDocument();
 					Node newTag = outDoc.importNode(SVGTag, true);
 					outDoc.appendChild(newTag);
-					
+
 					System.out.println(outDoc.getDocumentElement());
 
 					TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -186,26 +212,86 @@ public class DSVGParser {
 
 					transformer.transform(source, result);
 
+					System.out.println();
 					//Return the new Document
+					outputVector.setVectorGraphic(outDoc);
+
 					return outDoc;
 
 				}
-				//ERROR NO SVG TAG FOUND;
-				System.err.println("ERROR NO SVG TAG FOUND");
-			} else {
-				//ERROR NO CONNECTION FOUND
-				System.err.println("ERROR NO CONNECTION FOUND");
+				throw new Exception("ERROR NO SVG TAG FOUND");
 			}
+			throw new Exception("ERROR NO CONNECTION FOUND");
 		}
-		return null;
+		throw new Exception("ERROR INVALID DOCUMENT TYPE");
+		//return null;
 	}
 
-	private static boolean isMatchingInput(String input,int flag) {
+	/**
+	 * Creates a DScriptVector from a connectionNode 
+	 * 
+	 * @param connectionNode
+	 * @return
+	 */
+	private static DScriptVector parseConnection(Node connectionNode) {
+		DScriptVector matchedConnection = new DScriptVector();
+
+		NodeList children = connectionNode.getChildNodes();
+		int childCount = children.getLength();
+
+		for(int i = 0;i < childCount;i++) {
+			Node currentChild = children.item(i);
+			String currentType = currentChild.getNodeName();
+			NamedNodeMap currentAttributes = currentChild.getAttributes();
+
+			boolean isStart	= currentType.equals("start");
+			boolean isEnd	= currentType.equals("end");
+
+			String xPoint,yPoint,type;
+
+			if(isStart|| isEnd) {
+				xPoint = currentAttributes.getNamedItem("x").getNodeValue();
+				yPoint = currentAttributes.getNamedItem("y").getNodeValue();
+				type   = currentAttributes.getNamedItem("type").getNodeValue();
+
+				double xVal,yVal;
+				xVal = 0;
+				yVal = 0;
+				boolean isValid = true;
+
+				try {
+					xVal = Double.parseDouble(xPoint);
+					yVal = Double.parseDouble(yPoint);
+				} catch (NumberFormatException e) {
+					// False Number Format
+					e.printStackTrace();
+					isValid = false;
+				}
+
+				if(isValid) {
+					
+					//Parse Type
+					
+					
+					
+					if(isStart) {
+						matchedConnection.setInputPoint("", new Point2D.Double(xVal, yVal));
+					} else {
+						matchedConnection.setOutputPoint("", new Point2D.Double(xVal, yVal));
+					}
+				}
+			}
+		}
+
+		return matchedConnection;
+	}
+
+	private static boolean isMatchingInput(String input,DScriptFlag flags) {
 		//TODO write input type - Flag validator
 		return true;
 	}
 
-	private static boolean isMatchingOutput(String input,int flag) {
+	private static boolean isMatchingOutput(String input,DScriptFlag flags) {
 		//TODO write output type - Flag validator
 		return true;
 	}

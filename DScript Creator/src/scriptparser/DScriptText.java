@@ -15,6 +15,10 @@ public class DScriptText {
 		}
 	}
 	
+	public DScriptLine getLine(int line) {
+		return this.lines.get(line);
+	}
+	
 	public int getLinecount() {
 		return this.lines.size();
 	}

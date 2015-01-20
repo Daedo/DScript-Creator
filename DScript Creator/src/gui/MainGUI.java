@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
-import build.DSVGParser;
+import build.DScriptBuilder;
 import build.DScriptCreator;
 import net.miginfocom.swing.MigLayout;
 
@@ -27,15 +27,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import database.Database;
 import scriptparser.DScriptLine;
 import scriptparser.DScriptText;
 
 public class MainGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextArea textArea;
-	private String documentPath;	//Path to the currently opened file
+	JTextArea textArea;
+	String documentPath;	//Path to the currently opened file
 	/**
 	 * Launch the application.
 	 */
@@ -49,15 +48,14 @@ public class MainGUI extends JFrame {
 		DB.getTextID(1);
 		DB.getLigatureID(1, "B");
 		DB.disconnect();*/
+		/*
 		try {
-			DSVGParser.parseDSVGFile("C:/Users/Dominik/Desktop/Programmieren/Java/DScript/DSVG DEMO FILE.dsvg",0);
+			DSVGParser.parseDSVGFile("C:/Users/Dominik/Desktop/Programmieren/Java/DScript/DSVG DEMO FILE.dsvg",new DScriptFlag());
 			//DSVGParser.parseDSVGFile("C:/Users/Dominik/Desktop/Programmieren/Java/git/DScript Creator/DScript Creator/Ligatures/Basic/a1.dsvg",0);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		
-		
+		}*/
 		
 		
 		//Main Code
@@ -178,7 +176,17 @@ public class MainGUI extends JFrame {
 		String areaText = this.textArea.getText();
 		//System.out.println(areaText);
 		DScriptText parsedText = parseText(areaText);
-		parsedText.debugText();
+		//parsedText.debugText();
+		
+		int lines = parsedText.getLinecount();
+		for(int i=0;i<lines;i++) {
+			DScriptLine currentLine = parsedText.getLine(i);
+			
+			int wordcount = currentLine.getWordcount();
+			for(int j=0;j<wordcount;j++) {
+				DScriptBuilder.buildWord(currentLine.getWord(j));
+			}
+		}
 		
 	}
 	
@@ -201,7 +209,7 @@ public class MainGUI extends JFrame {
 		return parsedText;
 	}
 	
-	private String getOpenFilename() {
+	String getOpenFilename() {
 		JFileChooser fileDialog = new JFileChooser("Select File to open");
 		int choice = fileDialog.showOpenDialog(this);
 		
@@ -228,7 +236,7 @@ public class MainGUI extends JFrame {
 	 * 
 	 * @param filePath Path to the File
 	 */
-	private String loadFile(String filePath) {
+	static String loadFile(String filePath) {
 		try {
 			FileReader openFile = new FileReader(filePath);
 			BufferedReader in = new BufferedReader(openFile);
@@ -263,7 +271,7 @@ public class MainGUI extends JFrame {
 	 * 
 	 * @param filePath Path to the File
 	 */
-	private void saveFile(String filePath) {
+	void saveFile(String filePath) {
 		try {
 			File file = new File(filePath);
 			if(!file.exists()) {

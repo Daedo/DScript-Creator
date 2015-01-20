@@ -3,7 +3,7 @@ package scriptparser;
 import java.util.HashMap;
 import java.util.Vector;
 
-import build.DScriptBuilder;
+import database.Database;
 
 public class DScriptBlock {
 	private HashMap<String,DScriptBlock> chains;
@@ -11,6 +11,7 @@ public class DScriptBlock {
 	private String mainChain;
 	private int ligatureID;
 	private int textID;
+	private String documentURI;
 
 	public DScriptBlock() {
 		this.chains 	= new HashMap<>();
@@ -18,6 +19,7 @@ public class DScriptBlock {
 		this.mainChain 	= "";
 		this.ligatureID = -1;
 		this.textID		= -1;
+		this.documentURI= "";
 	}
 
 	public static boolean isValidPosition(String position) {
@@ -75,6 +77,46 @@ public class DScriptBlock {
 		}
 		
 	}
+	
+	public String getDocumentURI() {
+		return this.documentURI;
+	}
+
+	public void setDocumentURI(String newDocumentURI) {
+		this.documentURI = newDocumentURI;
+	}
+
+	/**
+	 * Connects to the Ligature Database and tries to find its Ligature ID, Text ID and DocumentURI 
+	 */
+	public void gatherLigatureInformation() {
+		boolean hasLigatureID = this.ligatureID!=-1;
+		
+		boolean hasTextID = this.textID !=-1;
+		
+		
+		Database db = new Database("LigatureDatabase.db");
+		db.connect();
+		
+		if(hasLigatureID) {
+			this.text = db.getText(this.ligatureID);
+			this.textID = db.getTextID(this.ligatureID);
+		} else {
+			//System.out.println("No LID");
+			if(!hasTextID) {
+				//System.out.println("No TID");
+				this.ligatureID = db.getLigatureID(1, this.text.toUpperCase());
+				this.textID     = db.getTextID(this.ligatureID);
+			} else {
+				this.ligatureID = db.getLigatureID(this.textID, this.text.toUpperCase());	
+			}
+			
+		}
+		
+		this.documentURI = db.getFileURI(this.ligatureID);
+		db.disconnect();
+	}
+	
 	
 	//---------- Text ----------
 	/**

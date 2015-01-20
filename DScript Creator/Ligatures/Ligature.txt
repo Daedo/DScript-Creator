@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<!-- S -->
+<!-- Z -->
 <ligature>
-	<connection id="connection1">
-		<start x="75" y="0" type="*"/>
-		<end x="75" y="100" type="*"/>
-	</connection>
+	<allowed input ="*" output="*"/>
 	<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-		<g condition="connection1">
-			<path d="M75 0 A75 50 0 1 0 75 100" stroke="black" stroke-width="3" fill="none" />
+		<g id="main">
+			<path d="M 50 0 L 50 100 M 25 25 L 25 75 75 25 75 75" stroke="black" stroke-width="3" fill="none" />
 		</g>
 	</svg>
 </ligature>

@@ -14,8 +14,8 @@ public class Database {
 	public boolean connect() {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:"+this.name);
-			c.setAutoCommit(false);
+			this.c = DriverManager.getConnection("jdbc:sqlite:"+this.name);
+			this.c.setAutoCommit(false);
 		} catch(Exception e) {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
 			return false;
@@ -28,14 +28,14 @@ public class Database {
 	}
 	
 	public void disconnect() {
-		if(c!=null)
+		if(this.c!=null)
 		{
 			try {
-				c.close();
+				this.c.close();
 			} catch (Exception e) {
 				System.err.println( e.getClass().getName() + ": " + e.getMessage() );
 			}
-			c=null;
+			this.c=null;
 		}
 	}
 	
@@ -43,15 +43,15 @@ public class Database {
 		/*
 		 * Insert, Delete, Update
 		 * */
-		if(c!=null)
+		if(this.c!=null)
 		{
 			Statement stmt = null;
 			try
 			{
-				stmt = c.createStatement();
+				stmt = this.c.createStatement();
 				stmt.executeUpdate(sql);
 				stmt.close();
-				c.commit();
+				this.c.commit();
 			}
 			catch( Exception e)
 			{
@@ -70,10 +70,10 @@ public class Database {
 	//If you can make it work, while keep using prepared Statements just let me know.
 	public String getText(int LigatureID) {
 		String out = "";
-		if(c!=null) {
+		if(this.c!=null) {
 			PreparedStatement stmt = null;
 			try {				
-				stmt = c.prepareStatement("SELECT TEXT FROM LIGATURES WHERE LIGATUREID=?;");
+				stmt = this.c.prepareStatement("SELECT TEXT FROM LIGATURES WHERE LIGATUREID=?;");
 				stmt.setInt(1, LigatureID);
 				ResultSet rs = stmt.executeQuery();
 				
@@ -92,10 +92,10 @@ public class Database {
 	
 	public int getTextID(int LigatureID) {
 		int out = -1;
-		if(c!=null) {
+		if(this.c!=null) {
 			PreparedStatement stmt = null;
 			try {				
-				stmt = c.prepareStatement("SELECT TEXTID FROM LIGATURES WHERE LIGATUREID=?;");
+				stmt = this.c.prepareStatement("SELECT TEXTID FROM LIGATURES WHERE LIGATUREID=?;");
 				stmt.setInt(1, LigatureID);
 				ResultSet rs = stmt.executeQuery();
 				
@@ -114,10 +114,10 @@ public class Database {
 	
 	public String getFileURI(int LigatureID) {
 		String out = "";
-		if(c!=null) {
+		if(this.c!=null) {
 			PreparedStatement stmt = null;
 			try {				
-				stmt = c.prepareStatement("SELECT FILEURI FROM FILES WHERE LIGATUREID=?;");
+				stmt = this.c.prepareStatement("SELECT FILEURI FROM FILES WHERE LIGATUREID=?;");
 				stmt.setInt(1, LigatureID);
 				ResultSet rs = stmt.executeQuery();
 				
@@ -136,10 +136,10 @@ public class Database {
 	
 	public int getLigatureID(int TextID,String text) {
 		int out = -1;
-		if(c!=null) {
+		if(this.c!=null) {
 			PreparedStatement stmt = null;
 			try {				
-				stmt = c.prepareStatement("SELECT LIGATUREID FROM LIGATURES WHERE TEXTID=? AND TEXT=?;");
+				stmt = this.c.prepareStatement("SELECT LIGATUREID FROM LIGATURES WHERE TEXTID=? AND TEXT=?;");
 				stmt.setInt(1, TextID);
 				stmt.setString(2, text);
 				ResultSet rs = stmt.executeQuery();
