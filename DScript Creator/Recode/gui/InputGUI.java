@@ -16,6 +16,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import textparser.Glyph;
+import textparser.ParseException;
 import textparser.Parser;
 
 public class InputGUI extends JFrame {
@@ -81,17 +82,24 @@ public class InputGUI extends JFrame {
 	}
 	
 	static void translate(final String text) {
-		final Glyph glyph = Parser.parse(text);
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					DisplayGUI frame = new DisplayGUI(text,glyph); 
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
+		Parser p = new Parser();
+		try {
+			final Glyph glyph = p.parse(text);
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						DisplayGUI frame = new DisplayGUI(text,glyph); 
+						frame.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		});
+			});
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 	}
 }

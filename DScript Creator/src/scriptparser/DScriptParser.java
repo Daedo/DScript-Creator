@@ -127,7 +127,7 @@ public class DScriptParser {
 				switch(currentChar) {
 				case '(': openLigature(); break;
 				case '|': toggleLigature(); break;
-				case ')': closeLigature();; break;
+				case ')': closeLigature() ; break;
 
 				case '{': openSideChain();  break;
 				case '}': closeSidechain(); break;
