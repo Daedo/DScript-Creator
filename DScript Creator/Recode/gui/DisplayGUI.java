@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 
 import javax.swing.JFrame;
@@ -11,11 +10,11 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.batik.swing.JSVGCanvas;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.Document;
 
 import textparser.Glyph;
+import dsvg.ConnectionPoint;
+import dsvg.DSVGParser;
+import dsvg.Ligature;
 
 public class DisplayGUI extends JFrame {
 
@@ -62,13 +61,13 @@ public class DisplayGUI extends JFrame {
 		try {
 			JSVGCanvas canvas = new JSVGCanvas();
 			canvas.setURI(new File("Ligatures\\Basic\\a1.dsvg").toURI().toURL().toString());
-			add(canvas);
+			getContentPane().add(canvas);
 			canvas.setBounds(0, 0, 200, 200);
 			canvas.setBackground(new Color(255, 255, 255, 0));
 			
 			canvas = new JSVGCanvas();
 			canvas.setURI(new File("Ligatures\\Basic\\o1.dsvg").toURI().toURL().toString());
-			add(canvas);
+			getContentPane().add(canvas);
 			canvas.setBounds(100, 60, 200, 200);
 			canvas.setBackground(new Color(255, 255, 255, 0));
 
@@ -80,30 +79,50 @@ public class DisplayGUI extends JFrame {
 	
 	
 	void testAdd(String in) {
-		try {
-			for(int i=0;i<in.length();i++) {
-				String path = "Ligatures\\Basic\\"+in.charAt(i)+"1.dsvg";
-				JSVGCanvas canvas = new JSVGCanvas();
-				canvas.setURI(new File(path).toURI().toURL().toString());
-				add(canvas);
-				canvas.setBounds(0, 200*i, 200, 200);
-				canvas.setBackground(new Color(255, 255, 255, 0));
+		Ligature prevLig = null;
+		int outX = 50;
+		int outY = 50;
+		
+		for(int i=0;i<in.length();i++) {
+			String svgPath = "Ligatures\\Basic\\"+in.charAt(i)+"1.svg";
+			String xmlPath = "Ligatures\\Basic\\"+in.charAt(i)+"1.xml";
+			Ligature lig = DSVGParser.parseDSVFile(svgPath,xmlPath);
+			
+			System.out.println(lig.toString());
+			
+			JSVGCanvas canvas = new JSVGCanvas();
+			try {
+				canvas.setURI(new File(lig.getSvgDocument()).toURI().toURL().toString());
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	static void debugDocument(Document doc) {
-		OutputFormat format = new OutputFormat(doc);
-		format.setIndenting(true);
-		XMLSerializer serializer = new XMLSerializer(System.out, format);
-		try {
-			serializer.serialize(doc);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+			
+			getContentPane().add(canvas);
+			
 
+			if(prevLig!=null) {
+				ConnectionPoint outCP = prevLig.getConnectionPoint(2);
+				ConnectionPoint outInCP = prevLig.getConnectionPoint(1);
+				outX += outCP.getX()-outInCP.getX();
+				outY += outCP.getY()-outInCP.getY();
+			}
+			ConnectionPoint inCP  = lig.getConnectionPoint(1);
+			int inX = inCP.getX();
+			int inY = inCP.getY();
+			
+			System.out.println(outX+"|"+outY);
+			System.out.println(inX+"|"+inY);
+			int posX = outX-inX;
+			int posY = outY-inY;
+			System.out.println(posX +"|"+ posY);
+			canvas.setBounds(posX, posY, 200, 200);
+			canvas.setBackground(new Color(255, 255, 255, 0));
+			
+			prevLig = lig;
+			//outX += inX;
+			//outY += inY;
+			
+		}
+	}
 }

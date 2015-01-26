@@ -18,7 +18,6 @@ public class GlyphDisplayer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return "";
 	}
 }
