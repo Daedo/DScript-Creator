@@ -21,11 +21,28 @@ public class Glyph {
 		this.connections.add(connection);
 	}
 
+	public Connection getConnection(int index) {
+		if(index>=this.connections.size()) {
+			return null;
+		}
+		return this.connections.get(index);
+	}
+	
 	public void debugGlyph(int tabs) {
 		String tab = Utilitys.repeatString("\t", tabs);
 		System.out.println(tab+"Glyph: "+this.ligature+"\t"+GlyphDisplayer.getDSVGFile(this.ligature));
 		for(Connection connection:this.connections) {
 			connection.debugConnection(tabs+1);
 		}
+	}
+	
+	public String getLigature() {
+		return this.ligature;
+	}
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString()+" - Ligature: "+this.ligature;
 	}
 }

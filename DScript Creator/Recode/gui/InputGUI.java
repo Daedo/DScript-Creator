@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -57,7 +58,7 @@ public class InputGUI extends JFrame {
 		gbl_contentPane.columnWeights = new double[]{1.0, Double.MIN_VALUE};
 		gbl_contentPane.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		this.contentPane.setLayout(gbl_contentPane);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
@@ -65,10 +66,10 @@ public class InputGUI extends JFrame {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
 		this.contentPane.add(scrollPane, gbc_scrollPane);
-		
+
 		final JTextArea textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
-		
+
 		JButton btnTranslate = new JButton("Translate");
 		btnTranslate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -80,26 +81,29 @@ public class InputGUI extends JFrame {
 		gbc_btnTranslate.gridy = 1;
 		this.contentPane.add(btnTranslate, gbc_btnTranslate);
 	}
-	
+
 	static void translate(final String text) {
 		Parser p = new Parser();
 		try {
-			final Glyph glyph = p.parse(text);
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						DisplayGUI frame = new DisplayGUI(text,glyph); 
-						frame.setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
+			Vector<Glyph> words = p.parse(text);
+
+			for(final Glyph glyph:words) {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							DisplayGUI frame = new DisplayGUI(text,glyph); 
+							frame.setVisible(true);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
+			}
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
+
+
 	}
 }

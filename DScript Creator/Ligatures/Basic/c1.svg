@@ -4,6 +4,6 @@
 
 <svg width="110" height="110" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<g id="main">
-		<path d="M30 5 L30 80 M30 42 L55 42" stroke="black" stroke-width="3" fill="none" />
+		<path d="M30 5 L30 80 M30 42.5 L55 42.5" stroke="black" stroke-width="3" fill="none" />
 	</g>
 </svg>

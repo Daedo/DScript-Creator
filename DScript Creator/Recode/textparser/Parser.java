@@ -17,7 +17,7 @@ public class Parser {
 	 * @param str
 	 * @throws ParseException 
 	 */
-	public Glyph parse(String str) throws ParseException {		
+	public Vector<Glyph> parse(String str) throws ParseException {		
 		if(str == null) {
 			return null;
 		}
@@ -42,8 +42,7 @@ public class Parser {
 			g.debugGlyph(0);
 		}
 
-		Glyph in = new Glyph("");
-		return in;
+		return this.words;
 	}
 
 	private void parseChar(char chr) throws ParseException {

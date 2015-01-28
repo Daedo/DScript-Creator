@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes" ?>
+<points>
+	<point id="1" x="30" y="5"  in="true" out="false"/>
+	<point id="2" x="42" y="30" in="false" out="true"/>
+	<point id="3" x="80" y="30" in="false" out="true"/>
+</points>

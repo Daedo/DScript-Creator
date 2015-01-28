@@ -3,6 +3,7 @@ package gui;
 import java.awt.Color;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.Stack;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -11,7 +12,9 @@ import javax.swing.border.EmptyBorder;
 
 import org.apache.batik.swing.JSVGCanvas;
 
+import textparser.Connection;
 import textparser.Glyph;
+import utils.Point;
 import dsvg.ConnectionPoint;
 import dsvg.DSVGParser;
 import dsvg.Ligature;
@@ -53,30 +56,63 @@ public class DisplayGUI extends JFrame {
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
 		this.contentPane.setLayout(null);
-		//addGlyphs(glyph);
-		testAdd(input);
+		addGlyphs(glyph);
+		//testAdd(input);
 	}
 	
 	void addGlyphs(Glyph root) {
-		try {
-			JSVGCanvas canvas = new JSVGCanvas();
-			canvas.setURI(new File("Ligatures\\Basic\\a1.dsvg").toURI().toURL().toString());
-			getContentPane().add(canvas);
-			canvas.setBounds(0, 0, 200, 200);
-			canvas.setBackground(new Color(255, 255, 255, 0));
+		Stack<Glyph> workGlyphs				= new Stack<>();
+		Stack<Point<Integer>> workPositions = new Stack<>();
+		Stack<Integer> workConnection		= new Stack<>();
+		
+		workGlyphs.push(root);
+		workPositions.push(new Point<>(new Integer(50), new Integer(50)));
+		//hasToPaint.push(new Boolean(true));
+		workConnection.push(new Integer(0));
+		
+		while(!workGlyphs.isEmpty()) {
+			Glyph currentGlyph 				= workGlyphs.pop();
+			int currentConnectionID			= workConnection.pop().intValue();
+			Point<Integer> currentPosition	= workPositions.pop();
 			
-			canvas = new JSVGCanvas();
-			canvas.setURI(new File("Ligatures\\Basic\\o1.dsvg").toURI().toURL().toString());
-			getContentPane().add(canvas);
-			canvas.setBounds(100, 60, 200, 200);
-			canvas.setBackground(new Color(255, 255, 255, 0));
-
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(currentConnectionID==0) {
+				try {
+					JSVGCanvas canvas = new JSVGCanvas();
+					canvas.setURI(new File("Ligatures\\Basic\\"+currentGlyph.getLigature()+"1.svg").toURI().toURL().toString());
+					getContentPane().add(canvas);
+					canvas.setBounds(currentPosition.x.intValue(), currentPosition.y.intValue(), 200, 200);
+					canvas.setBackground(new Color(255, 255, 255, 0));
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				System.out.print("Paint: ");
+			}
+			System.out.println(currentGlyph+" "+currentConnectionID+currentPosition.x+" | "+currentPosition.y);
+			
+			
+			Connection currentConnection = currentGlyph.getConnection(currentConnectionID);
+			if(currentConnection!=null) {
+				workGlyphs.push(currentGlyph);
+				workConnection.push(new Integer(currentConnectionID+1));
+				workPositions.push(currentPosition);
+				
+				//Calculate new Position
+				String type = currentConnection.getType();
+				
+				
+				Integer newX = new Integer(currentPosition.x.intValue());
+				Integer newY = new Integer(currentPosition.y.intValue()+50);
+				Point<Integer> newPoint = new Point<>(newX, newY);
+				
+				Glyph endGlyph = currentConnection.getEnd();
+				workGlyphs.push(endGlyph);
+				workConnection.push(new Integer(0));
+				workPositions.push(newPoint);
+			}	
 		}
 	}
-	
 	
 	void testAdd(String in) {
 		Ligature prevLig = null;
@@ -103,25 +139,23 @@ public class DisplayGUI extends JFrame {
 
 			if(prevLig!=null) {
 				ConnectionPoint outCP = prevLig.getConnectionPoint(2);
-				ConnectionPoint outInCP = prevLig.getConnectionPoint(1);
-				outX += outCP.getX()-outInCP.getX();
-				outY += outCP.getY()-outInCP.getY();
+				outX += outCP.getX();
+				outY += outCP.getY();
 			}
 			ConnectionPoint inCP  = lig.getConnectionPoint(1);
 			int inX = inCP.getX();
 			int inY = inCP.getY();
+			outX -= inX;
+			outY -= inY;
 			
-			System.out.println(outX+"|"+outY);
 			System.out.println(inX+"|"+inY);
-			int posX = outX-inX;
-			int posY = outY-inY;
-			System.out.println(posX +"|"+ posY);
-			canvas.setBounds(posX, posY, 200, 200);
+			System.out.println(outX +"|"+ outY);
+			
+			canvas.setBounds(outX, outY, 200, 200);
 			canvas.setBackground(new Color(255, 255, 255, 0));
 			
 			prevLig = lig;
-			//outX += inX;
-			//outY += inY;
+			
 			
 		}
 	}

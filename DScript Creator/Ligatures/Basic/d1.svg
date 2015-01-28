@@ -3,6 +3,6 @@
 <!-- D -->
 <svg width="110" height="110" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   	<g id="main">
-		<path d="M42 0 L42 30 M0 30 L80 30" stroke="black" stroke-width="3" fill="none" />
+		<path d="M42.5 0 L42.5 30 M0 30 L80 30" stroke="black" stroke-width="3" fill="none" />
   	</g>
 </svg>
