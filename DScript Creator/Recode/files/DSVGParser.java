@@ -1,4 +1,4 @@
-package dsvg;
+package files;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +36,7 @@ public class DSVGParser {
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);		
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			File DSVGFile = new File(XMLURI);
-			//System.out.println("Start Builder");
 			Document DSVGDocument = builder.parse(DSVGFile);
-			//System.out.println("End Builder");
 
 			Element rootElement = DSVGDocument.getDocumentElement(); 
 			String rootName = rootElement.getNodeName();
@@ -70,7 +68,6 @@ public class DSVGParser {
 	}
 
 	public static void printDocument(Document doc) {
-
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();

@@ -15,9 +15,10 @@ import org.apache.batik.swing.JSVGCanvas;
 import textparser.Connection;
 import textparser.Glyph;
 import utils.Point;
-import dsvg.ConnectionPoint;
-import dsvg.DSVGParser;
-import dsvg.Ligature;
+import files.ConnectionPoint;
+import files.DSVGParser;
+import files.Ligature;
+import files.PropetyInformation;
 
 public class DisplayGUI extends JFrame {
 
@@ -67,7 +68,6 @@ public class DisplayGUI extends JFrame {
 		
 		workGlyphs.push(root);
 		workPositions.push(new Point<>(new Integer(50), new Integer(50)));
-		//hasToPaint.push(new Boolean(true));
 		workConnection.push(new Integer(0));
 		
 		while(!workGlyphs.isEmpty()) {
@@ -75,10 +75,13 @@ public class DisplayGUI extends JFrame {
 			int currentConnectionID			= workConnection.pop().intValue();
 			Point<Integer> currentPosition	= workPositions.pop();
 			
+			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
+			String xmlPath					= PropetyInformation.getXMLPath(currentGlyph.getLigature());
+			
 			if(currentConnectionID==0) {
 				try {
 					JSVGCanvas canvas = new JSVGCanvas();
-					canvas.setURI(new File("Ligatures\\Basic\\"+currentGlyph.getLigature()+"1.svg").toURI().toURL().toString());
+					canvas.setURI(new File(svgPath).toURI().toURL().toString());
 					getContentPane().add(canvas);
 					canvas.setBounds(currentPosition.x.intValue(), currentPosition.y.intValue(), 200, 200);
 					canvas.setBackground(new Color(255, 255, 255, 0));
@@ -100,13 +103,30 @@ public class DisplayGUI extends JFrame {
 				
 				//Calculate new Position
 				String type = currentConnection.getType();
+				String[] attribs = type.split(",");
+				if(attribs.length<2) {
+					//Error
+					return;
+				}
+				int outAtrib = Integer.parseInt(attribs[0]);
+				int inAtrib = Integer.parseInt(attribs[1]);
 				
-				
-				Integer newX = new Integer(currentPosition.x.intValue());
-				Integer newY = new Integer(currentPosition.y.intValue()+50);
-				Point<Integer> newPoint = new Point<>(newX, newY);
 				
 				Glyph endGlyph = currentConnection.getEnd();
+				Ligature prevLig = DSVGParser.parseDSVFile(svgPath,xmlPath);
+				
+				String newSVGPath = PropetyInformation.getSVGPath(endGlyph.getLigature());
+				String newXMLPath = PropetyInformation.getXMLPath(endGlyph.getLigature()+"_Points");
+				Ligature newLig  = DSVGParser.parseDSVFile(newSVGPath, newXMLPath);
+				
+				ConnectionPoint outP = prevLig.getConnectionPoint(outAtrib);
+				ConnectionPoint inP  = newLig.getConnectionPoint(inAtrib);
+				
+				Integer newX = new Integer(currentPosition.x.intValue()+outP.getX()-inP.getX());
+				Integer newY = new Integer(currentPosition.y.intValue()+outP.getY()-inP.getY());
+				Point<Integer> newPoint = new Point<>(newX, newY);
+				
+				
 				workGlyphs.push(endGlyph);
 				workConnection.push(new Integer(0));
 				workPositions.push(newPoint);
@@ -135,7 +155,6 @@ public class DisplayGUI extends JFrame {
 			}
 			
 			getContentPane().add(canvas);
-			
 
 			if(prevLig!=null) {
 				ConnectionPoint outCP = prevLig.getConnectionPoint(2);

@@ -2,6 +2,7 @@ package textparser;
 
 import java.util.Vector;
 
+import files.PropetyInformation;
 import utils.Utilitys;
 
 public class Glyph {
@@ -30,7 +31,7 @@ public class Glyph {
 	
 	public void debugGlyph(int tabs) {
 		String tab = Utilitys.repeatString("\t", tabs);
-		System.out.println(tab+"Glyph: "+this.ligature+"\t"+GlyphDisplayer.getDSVGFile(this.ligature));
+		System.out.println(tab+"Glyph: "+this.ligature+"\t"+PropetyInformation.getSVGPath(this.ligature));
 		for(Connection connection:this.connections) {
 			connection.debugConnection(tabs+1);
 		}

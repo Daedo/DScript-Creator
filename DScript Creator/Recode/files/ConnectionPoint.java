@@ -1,4 +1,4 @@
-package dsvg;
+package files;
 
 public class ConnectionPoint {
 	private int id;

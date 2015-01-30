@@ -1,10 +1,10 @@
-package dsvg;
+package files;
 
 import java.util.Vector;
 
 public class Ligature {
 	private Vector<ConnectionPoint> points;
-	private String svgDocument;
+	private String svgDocument;	
 	
 	public Ligature(String svgURI) {
 		this.points = new Vector<>();
