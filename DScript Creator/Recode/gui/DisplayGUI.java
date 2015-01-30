@@ -16,7 +16,6 @@ import textparser.Connection;
 import textparser.Glyph;
 import utils.Point;
 import files.ConnectionPoint;
-import files.DSVGParser;
 import files.Ligature;
 import files.PropetyInformation;
 
@@ -76,7 +75,6 @@ public class DisplayGUI extends JFrame {
 			Point<Integer> currentPosition	= workPositions.pop();
 			
 			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
-			String xmlPath					= PropetyInformation.getXMLPath(currentGlyph.getLigature());
 			
 			if(currentConnectionID==0) {
 				try {
@@ -93,7 +91,6 @@ public class DisplayGUI extends JFrame {
 				System.out.print("Paint: ");
 			}
 			System.out.println(currentGlyph+" "+currentConnectionID+currentPosition.x+" | "+currentPosition.y);
-			
 			
 			Connection currentConnection = currentGlyph.getConnection(currentConnectionID);
 			if(currentConnection!=null) {
@@ -113,11 +110,8 @@ public class DisplayGUI extends JFrame {
 				
 				
 				Glyph endGlyph = currentConnection.getEnd();
-				Ligature prevLig = DSVGParser.parseDSVFile(svgPath,xmlPath);
-				
-				String newSVGPath = PropetyInformation.getSVGPath(endGlyph.getLigature());
-				String newXMLPath = PropetyInformation.getXMLPath(endGlyph.getLigature()+"_Points");
-				Ligature newLig  = DSVGParser.parseDSVFile(newSVGPath, newXMLPath);
+				Ligature prevLig = new Ligature(currentGlyph.getLigature());
+				Ligature newLig   = new Ligature(endGlyph.getLigature());
 				
 				ConnectionPoint outP = prevLig.getConnectionPoint(outAtrib);
 				ConnectionPoint inP  = newLig.getConnectionPoint(inAtrib);
@@ -140,15 +134,14 @@ public class DisplayGUI extends JFrame {
 		int outY = 50;
 		
 		for(int i=0;i<in.length();i++) {
-			String svgPath = "Ligatures\\Basic\\"+in.charAt(i)+"1.svg";
-			String xmlPath = "Ligatures\\Basic\\"+in.charAt(i)+"1.xml";
-			Ligature lig = DSVGParser.parseDSVFile(svgPath,xmlPath);
+			Ligature lig = new Ligature(""+in.charAt(i));
 			
 			System.out.println(lig.toString());
 			
 			JSVGCanvas canvas = new JSVGCanvas();
 			try {
-				canvas.setURI(new File(lig.getSvgDocument()).toURI().toURL().toString());
+				String URI = PropetyInformation.getSVGPath(lig.getValue());
+				canvas.setURI(new File(URI).toURI().toURL().toString());
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
