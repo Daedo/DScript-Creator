@@ -32,6 +32,7 @@ public class InputGUI extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					InputGUI frame = new InputGUI();
@@ -72,6 +73,7 @@ public class InputGUI extends JFrame {
 
 		JButton btnTranslate = new JButton("Translate");
 		btnTranslate.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				translate(textArea.getText());
 			}
@@ -85,20 +87,19 @@ public class InputGUI extends JFrame {
 	static void translate(final String text) {
 		Parser p = new Parser();
 		try {
-			Vector<Glyph> words = p.parse(text);
-
-			for(final Glyph glyph:words) {
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						try {
-							DisplayGUI frame = new DisplayGUI(text,glyph); 
-							frame.setVisible(true);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+			final Vector<Glyph> words = p.parse(text);
+			EventQueue.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						DisplayGUI frame = new DisplayGUI(text,words); 
+						frame.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				});
-			}
+				}
+			});
+
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

@@ -2,12 +2,12 @@ package files;
 
 public class ConnectionPoint {
 	private int id;
-	private int x;
-	private int y;
+	private double x;
+	private double y;
 	private boolean isInpoint;
 	private boolean isOutpoint;
 	
-	public ConnectionPoint(int connectionID,int xPos,int yPos,boolean in,boolean out) {
+	public ConnectionPoint(int connectionID,double xPos,double yPos,boolean in,boolean out) {
 		this.setId(connectionID);
 		this.x = xPos;
 		this.y = yPos;
@@ -28,19 +28,19 @@ public class ConnectionPoint {
 		this.id = connectionID;
 	}
 
-	public int getX() {
+	public double getX() {
 		return this.x;
 	}
 
-	public void setX(int xPos) {
+	public void setX(double xPos) {
 		this.x = xPos;
 	}
 
-	public int getY() {
+	public double getY() {
 		return this.y;
 	}
 
-	public void setY(int yPos) {
+	public void setY(double yPos) {
 		this.y = yPos;
 	}
 

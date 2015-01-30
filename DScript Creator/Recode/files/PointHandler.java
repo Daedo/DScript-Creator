@@ -69,11 +69,11 @@ public class PointHandler implements org.xml.sax.ContentHandler{
 			
 			try {
 				int idInt		= Integer.parseInt(id);
-				int xInt		= Integer.parseInt(x);
-				int yInt 		= Integer.parseInt(y);
+				double xDouble	= Double.parseDouble(x);
+				double yDouble 	= Double.parseDouble(y);
 				boolean inBool	= Boolean.parseBoolean(in);
 				boolean outBool	= Boolean.parseBoolean(out);
-				ConnectionPoint point = new ConnectionPoint(idInt, xInt, yInt, inBool, outBool);
+				ConnectionPoint point = new ConnectionPoint(idInt, xDouble, yDouble, inBool, outBool);
 				this.pointList.add(point);
 			} catch (NumberFormatException e) {
 				System.err.println("Parse Error with file. Parsed Key: ");

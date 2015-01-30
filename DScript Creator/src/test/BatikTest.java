@@ -1,6 +1,5 @@
 package test;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -13,8 +12,6 @@ import org.apache.batik.swing.JSVGCanvas;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-
-import javax.swing.JList;
 
 import java.awt.Insets;
 
@@ -31,6 +28,7 @@ public class BatikTest extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					BatikTest frame = new BatikTest();

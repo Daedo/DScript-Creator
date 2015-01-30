@@ -60,6 +60,7 @@ public class MainGUI extends JFrame {
 		
 		//Main Code
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MainGUI frame = new MainGUI();
@@ -89,6 +90,7 @@ public class MainGUI extends JFrame {
 		
 		JMenuItem mntmNew = new JMenuItem("New");
 		mntmNew.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
 				//TODO check for unsafed changes
@@ -103,6 +105,7 @@ public class MainGUI extends JFrame {
 		
 		JMenuItem mntmOpen = new JMenuItem("Open");
 		mntmOpen.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				
 				//TODO check for unsafed changes
@@ -119,6 +122,7 @@ public class MainGUI extends JFrame {
 		
 		JMenuItem mntmSave = new JMenuItem("Save");
 		mntmSave.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				System.out.println("Save");
@@ -135,6 +139,7 @@ public class MainGUI extends JFrame {
 		
 		JMenuItem mntmSaveAs = new JMenuItem("Save As...");
 		mntmSaveAs.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				
 				System.out.println("Save As...");
@@ -164,6 +169,7 @@ public class MainGUI extends JFrame {
 		JButton btnTranslate = new JButton("Translate");
 		InputPanel.add(btnTranslate, "cell 1 0,alignx right,aligny center");
 		btnTranslate.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				translateText();
 			}
