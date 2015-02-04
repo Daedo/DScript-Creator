@@ -7,8 +7,8 @@ public class ConnectionPoint {
 	private boolean isInpoint;
 	private boolean isOutpoint;
 	
-	public ConnectionPoint(int connectionID,double xPos,double yPos,boolean in,boolean out) {
-		this.setId(connectionID);
+	public ConnectionPoint(int connectionType,double xPos,double yPos,boolean in,boolean out) {
+		this.setID(connectionType);
 		this.x = xPos;
 		this.y = yPos;
 		this.isInpoint = in;
@@ -20,11 +20,11 @@ public class ConnectionPoint {
 		return "ID: "+this.id+" X: "+this.x+" Y: "+this.y+" In: "+this.isInpoint+" Out: "+this.isOutpoint;
 	}
 
-	public int getId() {
+	public int getID() {
 		return this.id;
 	}
 
-	public void setId(int connectionID) {
+	public void setID(int connectionID) {
 		this.id = connectionID;
 	}
 

@@ -21,7 +21,7 @@ public class Ligature {
 
 	public ConnectionPoint getConnectionPoint(int id) {
 		for(ConnectionPoint c:this.points) {
-			if(c.getId()==id) {
+			if(c.getID() == id) {
 				return c;
 			}
 		}

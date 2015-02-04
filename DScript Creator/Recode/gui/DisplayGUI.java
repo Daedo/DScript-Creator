@@ -12,11 +12,14 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.JSVGScrollPane;
+import org.w3c.dom.svg.SVGDocument;
 
 import textparser.Connection;
 import textparser.Glyph;
 import utils.Point;
 import files.ConnectionPoint;
+import files.DocumentBuilder;
 import files.Ligature;
 import files.PropetyInformation;
 
@@ -27,8 +30,6 @@ public class DisplayGUI extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-
-
 
 	/**
 	 * Create the frame.
@@ -61,9 +62,41 @@ public class DisplayGUI extends JFrame {
 	}
 	
 	void addWords(Vector<Glyph> words) {
+		SVGDocument doc = DocumentBuilder.buildWords(words);
+		JSVGCanvas canvas = new JSVGCanvas();
+		canvas.setDocument(doc);
+		canvas.setBounds(10,10, 2000, 2000);
+		canvas.setBackground(new Color(255, 255, 255, 0));
+		JSVGScrollPane scroll = new JSVGScrollPane(canvas);
+		setContentPane(scroll);
+		//getContentPane().add(scroll);
+		
+		/*
 		for(int i=0;i<words.size();i++) {
+			SVGDocument doc = DocumentBuilder.buildDocument(words.elementAt(i), 10+100*i, 0);
+			wordDocs.add(doc);
+			JSVGCanvas canvas = new JSVGCanvas();
+			canvas.setDocument(doc);
+			canvas.setBounds(10,10, 2000, 2000);
+			canvas.setBackground(new Color(255, 255, 255, 0));
+			getContentPane().add(canvas);
+		}*/
+		
+		
+		
+		/*JSVGCanvas canvas = new JSVGCanvas();
+		for(int i=0;i<words.size();i++) {
+			
 			addGlyphs(words.elementAt(i), 10+100*i, 0);
+			
 		}
+		canvas.setDocument(DocumentBuilder.buildDocument(null, 0, 0));
+		this.contentPane.add(canvas);
+		canvas.setBounds(10,10, 200, 200);
+		canvas.setBackground(new Color(255, 255, 255, 0));
+		/*for(int i=0;i<words.size();i++) {
+			addGlyphs(words.elementAt(i), 10+100*i, 0);
+		}*/
 	}
 	
 	void addGlyphs(Glyph root, double startX, double startY) {
@@ -86,7 +119,7 @@ public class DisplayGUI extends JFrame {
 				try {
 					JSVGCanvas canvas = new JSVGCanvas();
 					canvas.setURI(new File(svgPath).toURI().toURL().toString());
-					getContentPane().add(canvas);
+					this.contentPane.add(canvas);
 					canvas.setBounds(currentPosition.x.intValue(), currentPosition.y.intValue(), 200, 200);
 					canvas.setBackground(new Color(255, 255, 255, 0));
 				} catch (MalformedURLException e) {
@@ -112,8 +145,8 @@ public class DisplayGUI extends JFrame {
 					//Error
 					return;
 				}
-				int outAtrib = Integer.parseInt(attribs[0]);
-				int inAtrib = Integer.parseInt(attribs[1]);
+				int outAtrib = Integer.parseInt(attribs[0].trim());
+				int inAtrib  = Integer.parseInt(attribs[1].trim());
 				
 				Glyph endGlyph = currentConnection.getEnd();
 				Ligature prevLig = new Ligature(currentGlyph.getLigature());
