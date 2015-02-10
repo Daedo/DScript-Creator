@@ -1,0 +1,8 @@
+Credits
+Program by Dominik 'Daedo' Spies
+
+Dscript by 
+Matthew DeBlock
+(Licensed under a Creative Commons Attribution 3.0 Unported License.)
+
+Based on a work at www.dscript.ca and www.dscript.org.

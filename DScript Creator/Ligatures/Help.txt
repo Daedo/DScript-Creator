@@ -1,0 +1,13 @@
+How to use the DScript editor:
+Type your text into the input field and hit 'translate'.
+
+Use the '_' as an extended wordline.
+Standard connection: Out 2 to In 1.
+Specifiy your own connection with (out,in-) 
+e.g. tex(3,1-t)
+
+You can construct multiple sidechains that way.
+flo(3,1-we)r (in this case 'we' and 'r' are connected to the 'o')
+
+You can use special glyphs and ligatues with square brackets:
+s[t2]ar uses the alterntive t (=T2)

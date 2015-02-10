@@ -1,5 +1,6 @@
 package files;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -44,7 +45,7 @@ public class DocumentBuilder {
 		workConnection.push(new Integer(0));
 		double xMax = xStart;
 		double yMax = yStart;
-		
+
 		while(!workGlyphs.isEmpty()) {
 			Glyph currentGlyph 				= workGlyphs.pop();
 			int currentConnectionID			= workConnection.pop().intValue();
@@ -113,7 +114,7 @@ public class DocumentBuilder {
 
 				xMax = Math.max(xMax,newX.doubleValue());
 				yMax = Math.max(yMax,newY.doubleValue());
-				
+
 				workGlyphs.push(endGlyph);
 				workConnection.push(new Integer(0));
 				workPositions.push(newPoint);
@@ -167,10 +168,10 @@ public class DocumentBuilder {
 
 		// Get the root element (the 'svg' element).
 		Element svgRoot = doc.getDocumentElement();
-		
+
 		double xPos = 10;
 		double yPos = 0;
-		
+
 		for(int i=0;i<words.size();i++) {
 			//TODO Use Correct Alignment
 			SVGDocument sdoc = buildDocument(words.elementAt(i), xPos, yPos*0);
@@ -180,22 +181,34 @@ public class DocumentBuilder {
 			if(width==null || height==null) {
 				continue;
 			}
-			
+
 			xPos+=Double.parseDouble(width);
 			yPos+=Double.parseDouble(height);
-			
+
 			NodeList list = sdoc.getChildNodes();
 			for(int j=0;j<list.getLength();j++) {
 				Node imp = doc.importNode(list.item(j), true);
 				svgRoot.appendChild(imp);
 			}
 		}
-		
+
 		svgRoot.setAttributeNS(null, "width",  (xPos+200)+"");
 		svgRoot.setAttributeNS(null, "height", (yPos+200)+"");
-		
+
 		return (SVGDocument)doc;
 	}
 
-	
+	public static Dimension getSVGSize(Document doc) {
+		Element svgElement 	= doc.getDocumentElement();
+		if(svgElement.hasAttribute("width") && svgElement.hasAttribute("height")) {
+			String width  		= svgElement.getAttribute("width");
+			String height 		= svgElement.getAttribute("height");
+			
+			int    wDim			= (int) Math.ceil(Double.parseDouble(width));
+			int    hDim			= (int) Math.ceil(Double.parseDouble(height));
+
+			return new Dimension(wDim,hDim);
+		}
+		return null;
+	}
 }

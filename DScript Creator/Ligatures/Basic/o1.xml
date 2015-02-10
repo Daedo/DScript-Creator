@@ -2,6 +2,6 @@
 <points>
 	<point id="1" x="25" y="5" in="true" out="false"/>
 	<point id="2" x="25" y="45" in="false" out="true"/>
-	<point id="3" x="5" y="5" in="false" out="true"/>
-	<point id="4" x="45" y="45" in="false" out="true"/>
+	<point id="3" x="5" y="25" in="false" out="true"/>
+	<point id="4" x="45" y="25" in="false" out="true"/>
 </points>
