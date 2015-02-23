@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -106,6 +107,7 @@ public class InputGUI extends JFrame {
 		this.contentPane.add(scrollPane, gbc_scrollPane);
 
 		final JTextArea textArea = new JTextArea();
+		textArea.setText("[Th]e [qu][i2]ck bro(4,1;w)n fox jumps over [th]e lazy dog");
 		scrollPane.setViewportView(textArea);
 
 		JButton btnTranslate = new JButton("Translate");
@@ -151,7 +153,7 @@ public class InputGUI extends JFrame {
 		this.contentPane.add(scroll,gbc_scroll);
 	}
 
-	static void translate(final String text) {
+	void translate(final String text) {
 		if(text==null || text.equals("")) {
 			return;
 		}		
@@ -171,36 +173,39 @@ public class InputGUI extends JFrame {
 			});
 
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			displayErrorMessage(e1.getMessage());
 		}
 	}
 	
-	static void displayHelpContent() {
+	void displayHelpContent() {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					TextFrame frame = new TextFrame("Ligatures\\Help.txt");
+					TextFrame frame = TextFrame.createFrameFromFile("Ligatures\\Help.txt");
 					frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					displayErrorMessage(e.getMessage());
 				}
 			}
 		});
 	}
 	
-	static void displayAboutContent() {
+	void displayAboutContent() {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					TextFrame frame = new TextFrame("Ligatures\\About.txt");
+					TextFrame frame = TextFrame.createFrameFromFile("Ligatures\\About.txt");
 					frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					displayErrorMessage(e.getMessage());
 				}
 			}
 		});
+	}
+	
+	void displayErrorMessage(String message) {
+		   JOptionPane.showMessageDialog(this,message,"Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

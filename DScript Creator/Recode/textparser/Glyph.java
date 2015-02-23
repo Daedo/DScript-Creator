@@ -2,18 +2,18 @@ package textparser;
 
 import java.util.Vector;
 
-import files.PropetyInformation;
 import utils.Utilitys;
+import files.PropetyInformation;
 
 public class Glyph {
 	private String ligature;
 	private Vector<Connection> connections;
-	
+
 	public Glyph(String ligatureString) {
 		this.ligature 		= ligatureString;
 		this.connections 	= new Vector<>();
 	}
-	
+
 	public void addGlyph(Glyph newGlyph,String connectionType) {
 		if(newGlyph==null || connectionType==null) {
 			return;
@@ -28,19 +28,21 @@ public class Glyph {
 		}
 		return this.connections.get(index);
 	}
-	
+
 	public void debugGlyph(int tabs) {
 		String tab = Utilitys.repeatString("\t", tabs);
+
 		System.out.println(tab+"Glyph: "+this.ligature+"\t"+PropetyInformation.getSVGPath(this.ligature));
+
 		for(Connection connection:this.connections) {
 			connection.debugConnection(tabs+1);
 		}
 	}
-	
+
 	public String getLigature() {
 		return this.ligature;
 	}
-	
+
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

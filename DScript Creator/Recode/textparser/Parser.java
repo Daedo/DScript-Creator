@@ -48,7 +48,7 @@ public class Parser {
 	private void parseChar(char chr) throws ParseException {
 		if(chr==' ' && !this.isInLigature && !this.isInPosition) {
 			endWord();
-		} else if(chr=='-' && this.isInPosition) {
+		} else if(chr==';' && this.isInPosition) {
 			togglePosition();
 		} else {
 			switch(chr) {

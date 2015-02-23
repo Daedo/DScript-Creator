@@ -19,7 +19,8 @@ import textparser.Parser;
 
 public class DScriptPresenter {
 	public static SVGDocument buildFullPresentationDocument() {
-		Vector<String> letters = getLetters();
+		HashMap<String,String> letterMap = PropetyInformation.getFiltertPropertyMap();
+		Vector<String> letters = getLetters(letterMap);
 		Collections.sort(letters);
 		
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
@@ -40,7 +41,16 @@ public class DScriptPresenter {
 			Parser parser = new Parser();
 			try {
 				Glyph glyph = parser.parse("["+letter+"]").get(0);
-				String XMLURI = PropetyInformation.getXMLPath(letter);
+				
+				
+				
+				String key  = letter+"_POINTS";
+				//key 		= key.toUpperCase();
+				
+				String XMLURI = "Ligatures\\"+letterMap.get(key);
+				//String XMLURI = PropetyInformation.getXMLPath(letter);
+				
+				System.out.println(XMLURI);
 				Vector<ConnectionPoint> points = PointParser.parsePoints(XMLURI);
 				
 				Document letterDoc = DocumentBuilder.buildDocument(glyph, 0, 0);
@@ -118,9 +128,6 @@ public class DScriptPresenter {
 					yPosition=20;
 					xPosition+=Double.parseDouble(width)+20;
 				}
-				
-				
-				
 			} catch (ParseException e) {
 				System.err.println("Error while building the Presenttion Document (Letter: "+letter+")");
 			}
@@ -132,11 +139,11 @@ public class DScriptPresenter {
 		return (SVGDocument) doc;
 	}
 	
-	private static Vector<String> getLetters() {
+	private static Vector<String> getLetters(HashMap<String,String> letterMap) {
 		Vector<String> letters = new Vector<>();
-		HashMap<String, String> map = PropetyInformation.getFiltertPropertyMap();
+		//HashMap<String, String> map = PropetyInformation.getFiltertPropertyMap();
 		
-		Set<String> keys = map.keySet();
+		Set<String> keys = letterMap.keySet();//map.keySet();
 		for(String key:keys) {
 			if(!key.endsWith("_POINTS")) {
 				letters.add(key);

@@ -11,7 +11,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class PointParser {
 	public static Vector<ConnectionPoint> parsePoints(String URI) {
-
 		try {
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 

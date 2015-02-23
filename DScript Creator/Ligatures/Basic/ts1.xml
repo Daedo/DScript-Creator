@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes" ?>
+<points>
+	<point id="1" x="59.09" y="14.09" in="true" out="false"/>
+	<point id="2" x="59.09" y="95.91" in="false" out="true"/>
+</points>
