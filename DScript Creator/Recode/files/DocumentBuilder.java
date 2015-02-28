@@ -136,18 +136,18 @@ public class DocumentBuilder {
 				ConnectionPoint outP = prevLig.getConnectionPoint(outAtrib);	// Where the previous Glyph ends (Relative)
 				ConnectionPoint inP  = newLig.getConnectionPoint(inAtrib);		// Where this Glyph starts (Relative)
 				
-				//First we move absolute
-				double moveX	= -outX;
-				double moveY	= -outY;
+				//Build the transformation... The last transformation must be at the first position...
+				//translate(POutX-PInX+CInX,POutY-PInY+CInY) <transform> translate(-CInX,-CInY);
 				
-				//Now we Move relative.
-				if(inP!=null) {
-					moveX -= inP.getX();
-					moveY -= inP.getY();
-				}
+				// 3. Move Group towards Destination
+				double newMoveX = outP.getX()+outX;
+				double newMoveY = outP.getY()+outY;
 				
-				String transformation = "translate("+moveX+","+moveY+")";
-				//The start point of of the Glyph is now at (0|0)
+				width = Math.max(newMoveX, width);
+				height= Math.max(newMoveY, height);
+				
+				String transformation = " translate("+newMoveX+","+newMoveY+")";
+				
 
 				nextState.carryTransformation 	= true;
 				
@@ -170,15 +170,18 @@ public class DocumentBuilder {
 					}
 				}
 				
-				//Move Group towards Destination
+				//First we move absolute
+				double moveX	= -outX;
+				double moveY	= -outY;
 				
-				double newMoveX = outP.getX()+outX;
-				double newMoveY = outP.getY()+outY;
+				//Now we Move relative.
+				if(inP!=null) {
+					moveX -= inP.getX();
+					moveY -= inP.getY();
+				}
 				
-				width = Math.max(newMoveX, width);
-				height= Math.max(newMoveY, height);
-				
-				transformation += " translate("+newMoveX+","+newMoveY+")";
+				transformation += "translate("+moveX+","+moveY+")";
+				//The start point of of the Glyph is now at (0|0)
 				
 				//Create new Group
 				Element nextGoup			= doc.createElementNS(svgNS, "g");
@@ -346,7 +349,7 @@ public class DocumentBuilder {
 				try {
 					String rotation = transformation.substring(1);
 					double rot = Double.parseDouble(rotation);
-					trans+="rotate("+rot+")";
+					trans="rotate("+rot+") "+trans;
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
@@ -355,7 +358,7 @@ public class DocumentBuilder {
 				try {
 					String scalar = transformation.substring(1);
 					double scale = Double.parseDouble(scalar);
-					trans+="scale("+scale+",1)";
+					trans="scale("+scale+",1) "+trans;
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
@@ -364,7 +367,7 @@ public class DocumentBuilder {
 				try {
 					String scalar = transformation.substring(1);
 					double scale = Double.parseDouble(scalar);
-					trans+="scale(1,"+scale+")";
+					trans="scale(1,"+scale+") "+trans;
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
@@ -373,16 +376,16 @@ public class DocumentBuilder {
 				try {
 					String scalar = transformation.substring(1);
 					double scale = Double.parseDouble(scalar);
-					trans+="scale("+scale+","+scale+")";
+					trans="scale("+scale+","+scale+") "+trans;
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
 
 			} else if(isHFlip) {
-				trans+="scale(1,-1)";
+				trans="scale(1,-1) "+trans;
 
 			} else if(isVFlip) {
-				trans+="scale(-1,1)";
+				trans="scale(-1,1) "+trans;
 			}
 		}
 
