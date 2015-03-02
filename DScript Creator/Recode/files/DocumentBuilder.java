@@ -67,8 +67,8 @@ public class DocumentBuilder {
 			Glyph currentGlyph 				= state.glyphState;
 			int currentConnectionID			= state.connectionState;
 			Element currentGroup			= state.groupState;
-			double outX						= state.posX;
-			double outY						= state.posY;
+			double stateX					= state.posX;
+			double stateY					= state.posY;
 			boolean carryTransformation		= state.carryTransformation;
 			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
 			
@@ -140,6 +140,59 @@ public class DocumentBuilder {
 				//translate(POutX-PInX+CInX,POutY-PInY+CInY) <transform> translate(-CInX,-CInY);
 				
 				// 3. Move Group towards Destination
+				//translate(POutX-PInX+CInX,POutY-PInY+CInY) Pin = Prev State
+				double XDest = outP.getX()-stateX+inP.getX();
+				double YDest = outP.getY()-stateY+inP.getY();
+				
+				System.out.println("Calculation Info:");
+				System.out.println("State Data: "+stateX+" | "+stateY);
+				System.out.println("Prev Out Data: "+outP.getX()+" | "+outP.getY());
+				System.out.println("Current In Data: "+inP.getX()+" | "+outP.getY());
+				
+				
+				//TODO Better way for width/height calculation. This one ignores Sidechains etc. -> Must take the tree nature of DScript into account
+				width+=XDest;
+				height+=YDest;
+				
+				String transformation = "translate("+XDest+","+YDest+")";
+				nextState.carryTransformation = true;
+				
+				//2. Transform Group
+				String trans = currentConnection.getTransform();
+				if(trans!=null && !trans.equals("")) {
+					String[] splitTrans = trans.split(",");
+					
+					
+					//Find if we have to carry the transformation
+					for(String subTransform:splitTrans) {
+						if(subTransform.trim().toUpperCase().equals("NCARRY")) {
+							nextState.carryTransformation = false;
+						}
+					}
+					
+					String reparse = reparseTransformation(splitTrans);
+					if(!reparse.equals("")) {
+						transformation+=" "+reparse;
+					}
+				}
+				
+				//1. Move In Point to Origin
+				
+				transformation += "translate("+(-inP.getX())+","+(-inP.getY())+")";
+				
+				//Create new Group
+				Element nextGoup			= doc.createElementNS(svgNS, "g");
+				nextGoup.setAttributeNS(null, "transform", transformation);
+				currentGroup.appendChild(nextGoup);
+				
+				nextState.groupState	= nextGoup;
+				nextState.posX 			= inP.getX();
+				nextState.posY 			= inP.getY();
+				
+				states.push(nextState);
+				
+				/*
+				// 3. Move Group towards Destination
 				double newMoveX = outP.getX()+outX;
 				double newMoveY = outP.getY()+outY;
 				
@@ -192,7 +245,7 @@ public class DocumentBuilder {
 				nextState.posX 			= newMoveX;
 				nextState.posY 			= newMoveY;
 				
-				states.push(nextState);
+				states.push(nextState);*/
 			}
 		}
 		
