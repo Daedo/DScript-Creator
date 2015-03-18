@@ -41,7 +41,7 @@ public class Parser {
 			System.out.println("Word: ");
 			g.debugGlyph(0);
 		}
-
+		System.out.println("End\n");
 		return this.words;
 	}
 
@@ -157,6 +157,14 @@ public class Parser {
 			}
 		} else {
 			this.wordRoot = newGlyph;
+			//First Glyph with transform/ Position
+			if(this.currentPosition!="") {
+				System.out.println("Pos Start: "+this.currentPosition);
+				//Create Dummy Glyph with Connection
+				Glyph dummy = new Glyph("");
+				dummy.addGlyph(this.wordRoot, this.currentPosition);
+				this.wordRoot = dummy;
+			}
 		}
 
 		this.chainStack.push(newGlyph);		
