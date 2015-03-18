@@ -28,11 +28,10 @@ import org.w3c.dom.svg.SVGDocument;
 
 import textparser.Connection;
 import textparser.Glyph;
-import utils.Point;
 
 public class DocumentBuilder {
 
-	public static SVGDocument newNewBuildDocument(Glyph root, double xStart, double yStart) {
+	public static SVGDocument buildDocument(Glyph root, double xStart, double yStart) {
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 		String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
 		Document doc = impl.createDocument(svgNS, "svg", null);
@@ -72,7 +71,6 @@ public class DocumentBuilder {
 		svgRoot.appendChild(mainGroup);
 
 		state.groupState					= mainGroup;
-		state.carryTransformation			= true;
 
 		states.push(state);
 
@@ -195,7 +193,6 @@ public class DocumentBuilder {
 					nextState.glyphState			= nextConnect.getEnd();
 
 					nextState.connectionState		= 0;
-					nextState.carryTransformation	= true;	//TODO Remove Variable!
 					nextState.connectionType		= currentConnection.getType();
 
 					//Calculate new Position
@@ -229,345 +226,6 @@ public class DocumentBuilder {
 
 		return (SVGDocument) doc;
 	}
-
-	public static SVGDocument newBuildDocument(Glyph root, double xStart, double yStart) {
-		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-		String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-		Document doc = impl.createDocument(svgNS, "svg", null);
-
-		// Get the root element (the 'svg' element).
-		Element svgRoot = doc.getDocumentElement();
-
-		double width = 100;
-		double height= 100;
-
-		Stack<BuilderState> states 			= new Stack<>();
-
-		BuilderState state 					= new BuilderState();
-		state.posX 							= xStart;
-		state.posY 							= yStart;
-		state.connectionState 				= 0;
-		state.glyphState					= root;
-
-		Element mainGroup					= doc.createElementNS(svgNS, "g");
-		mainGroup.setAttributeNS(null, "transform", "translate("+xStart+","+yStart+")");
-
-		svgRoot.appendChild(mainGroup);
-
-		state.groupState					= mainGroup;
-		state.carryTransformation			= true;
-
-		states.push(state);
-
-		while(!states.isEmpty()) {
-			state = states.pop();
-
-			Glyph currentGlyph 				= state.glyphState;
-			int currentConnectionID			= state.connectionState;
-			Element currentGroup			= state.groupState;
-			double stateX					= state.posX;
-			double stateY					= state.posY;
-			boolean carryTransformation		= state.carryTransformation;
-			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
-
-			if(currentConnectionID == 0) {
-				//Import Current Connection
-				System.out.println("Glyph:"+currentGlyph);
-
-				//Add Image to Group
-				Element img = doc.createElementNS(svgNS, "image");
-
-				String jarPath = ClassLoader.getSystemResource("")+"";
-
-				String link = "";
-				if(Main.isInWorkspace) {
-					link = jarPath+"../"+svgPath;
-				} else {
-					link = jarPath+svgPath;
-				}
-
-				XLinkSupport.setXLinkHref( img,link);
-
-				img.setAttributeNS(null, "x", "0");
-				img.setAttributeNS(null, "y", "0");
-				img.setAttributeNS(null, "width", "200");
-				img.setAttributeNS(null, "height", "200");
-				currentGroup.appendChild(img);				
-			}
-			Connection currentConnection = currentGlyph.getConnection(currentConnectionID);
-			if(currentConnection!=null) {
-				//Edit Current State
-				state.connectionState++;
-
-				if(!carryTransformation) {
-					//The transformation applies only to the current Glyph
-					if(states.isEmpty()) {
-						state.groupState = mainGroup;
-					} else {
-						state.groupState = states.peek().groupState;
-					}
-				}
-
-				//Push current State
-				states.push(state);
-
-				//Next State
-				BuilderState nextState			= new BuilderState();
-				nextState.glyphState			= currentConnection.getEnd();
-				nextState.connectionState		= 0;
-
-				//Create Transformation
-				String type = currentConnection.getType();
-				System.out.println(type);
-				String[] attribs = type.split(",");
-				if(attribs.length!=2) {
-					//TODO Throw Error
-					return null;
-				}
-				int outAtrib = Integer.parseInt(attribs[0].trim());
-				int inAtrib  = Integer.parseInt(attribs[1].trim());
-
-				Glyph endGlyph = currentConnection.getEnd();
-				Ligature prevLig = new Ligature(currentGlyph.getLigature());
-				Ligature newLig   = new Ligature(endGlyph.getLigature());
-
-				ConnectionPoint outP = prevLig.getConnectionPoint(outAtrib);	// Where the previous Glyph ends (Relative)
-				ConnectionPoint inP  = newLig.getConnectionPoint(inAtrib);		// Where this Glyph starts (Relative)
-
-				//Build the transformation... The last transformation must be at the first position...
-				//translate(POutX-PInX+CInX,POutY-PInY+CInY) <transform> translate(-CInX,-CInY);
-
-				// 3. Move Group towards Destination
-				//translate(POutX-PInX+CInX,POutY-PInY+CInY) Pin = Prev State
-				double XDest = outP.getX()-stateX+inP.getX();
-				double YDest = outP.getY()-stateY+inP.getY();
-
-				System.out.println("Calculation Info:");
-				System.out.println("State Data: "+stateX+" | "+stateY);
-				System.out.println("Prev Out Data: "+outP.getX()+" | "+outP.getY());
-				System.out.println("Current In Data: "+inP.getX()+" | "+outP.getY());
-
-
-				//TODO Better way for width/height calculation. This one ignores Sidechains etc. -> Must take the tree nature of DScript into account
-				width+=XDest;
-				height+=YDest;
-
-				String transformation = "translate("+XDest+","+YDest+")";
-				nextState.carryTransformation = true;
-
-				//2. Transform Group
-				String trans = currentConnection.getTransform();
-				if(trans!=null && !trans.equals("")) {
-					String[] splitTrans = trans.split(",");
-
-
-					//Find if we have to carry the transformation
-					for(String subTransform:splitTrans) {
-						if(subTransform.trim().toUpperCase().equals("NCARRY")) {
-							nextState.carryTransformation = false;
-						}
-					}
-
-					String reparse = reparseTransformation(splitTrans);
-					if(!reparse.equals("")) {
-						transformation+=" "+reparse;
-					}
-				}
-
-				//1. Move In Point to Origin
-
-				transformation += "translate("+(-inP.getX())+","+(-inP.getY())+")";
-
-				//Create new Group
-				Element nextGoup			= doc.createElementNS(svgNS, "g");
-				nextGoup.setAttributeNS(null, "transform", transformation);
-				currentGroup.appendChild(nextGoup);
-
-				nextState.groupState	= nextGoup;
-				nextState.posX 			= inP.getX();
-				nextState.posY 			= inP.getY();
-
-				states.push(nextState);
-
-				/*
-				// 3. Move Group towards Destination
-				double newMoveX = outP.getX()+outX;
-				double newMoveY = outP.getY()+outY;
-
-				width = Math.max(newMoveX, width);
-				height= Math.max(newMoveY, height);
-
-				String transformation = " translate("+newMoveX+","+newMoveY+")";
-
-
-				nextState.carryTransformation 	= true;
-
-				//Transform Group
-				String trans = currentConnection.getTransform();
-				if(trans!=null && !trans.equals("")) {
-					String[] splitTrans = trans.split(",");
-
-
-					//Find if we have to carry the transformation
-					for(String subTransform:splitTrans) {
-						if(subTransform.trim().toUpperCase().equals("NCARRY")) {
-							nextState.carryTransformation = false;
-						}
-					}
-
-					String reparse = reparseTransformation(splitTrans);
-					if(!reparse.equals("")) {
-						transformation+=" "+reparse;
-					}
-				}
-
-				//First we move absolute
-				double moveX	= -outX;
-				double moveY	= -outY;
-
-				//Now we Move relative.
-				if(inP!=null) {
-					moveX -= inP.getX();
-					moveY -= inP.getY();
-				}
-
-				transformation += "translate("+moveX+","+moveY+")";
-				//The start point of of the Glyph is now at (0|0)
-
-				//Create new Group
-				Element nextGoup			= doc.createElementNS(svgNS, "g");
-				nextGoup.setAttributeNS(null, "transform", transformation);
-				currentGroup.appendChild(nextGoup);
-
-				nextState.groupState	= nextGoup;
-				nextState.posX 			= newMoveX;
-				nextState.posY 			= newMoveY;
-
-				states.push(nextState);*/
-			}
-		}
-
-		// Set the width and height attributes on the root 'svg' element.
-		svgRoot.setAttributeNS(null, "width",  width + 100 +"");
-		svgRoot.setAttributeNS(null, "height", height+ 100 +"");
-
-		try {
-			printDocument(doc, System.out);
-		} catch (IOException | TransformerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return (SVGDocument) doc;
-	}
-
-	public static SVGDocument buildDocument(Glyph root, double xStart, double yStart)  {
-		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-		String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-		Document doc = impl.createDocument(svgNS, "svg", null);
-
-		// Get the root element (the 'svg' element).
-		Element svgRoot = doc.getDocumentElement();
-
-		Stack<Glyph> workGlyphs				= new Stack<>();
-		Stack<Point<Double>> workPositions = new Stack<>();
-		Stack<Integer> workConnection		= new Stack<>();
-
-		workGlyphs.push(root);
-		workPositions.push(new Point<>(new Double(xStart), new Double(yStart)));
-		workConnection.push(new Integer(0));
-		double xMax = xStart;
-		double yMax = yStart;
-
-		while(!workGlyphs.isEmpty()) {
-			Glyph currentGlyph 				= workGlyphs.pop();
-			int currentConnectionID			= workConnection.pop().intValue();
-			Point<Double> currentPosition	= workPositions.pop();
-
-			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
-
-			if(currentConnectionID==0) {
-				Element img = doc.createElementNS(svgNS, "image");
-
-				String jarPath = ClassLoader.getSystemResource("")+"";
-
-				String link = "";
-				if(Main.isInWorkspace) {
-					link = jarPath+"../"+svgPath;
-				} else {
-					link = jarPath+svgPath;
-				}
-
-				XLinkSupport.setXLinkHref( img,link);
-
-				img.setAttributeNS(null, "x", ""+currentPosition.x.doubleValue());
-				img.setAttributeNS(null, "y", ""+currentPosition.y.doubleValue());
-				img.setAttributeNS(null, "width", "200");
-				img.setAttributeNS(null, "height", "200");
-				svgRoot.appendChild(img);
-			}			
-			Connection currentConnection = currentGlyph.getConnection(currentConnectionID);
-			if(currentConnection!=null) {
-				workGlyphs.push(currentGlyph);
-				workConnection.push(new Integer(currentConnectionID+1));
-				workPositions.push(currentPosition);
-
-				//Calculate new Position
-				String type = currentConnection.getType();
-				System.out.println(type);
-				String[] attribs = type.split(",");
-				if(attribs.length!=2) {
-					//TODO Throw Error
-					return null;
-				}
-				int outAtrib = Integer.parseInt(attribs[0].trim());
-				int inAtrib  = Integer.parseInt(attribs[1].trim());
-
-				Glyph endGlyph = currentConnection.getEnd();
-				Ligature prevLig = new Ligature(currentGlyph.getLigature());
-				Ligature newLig   = new Ligature(endGlyph.getLigature());
-
-				ConnectionPoint outP = prevLig.getConnectionPoint(outAtrib);
-				ConnectionPoint inP  = newLig.getConnectionPoint(inAtrib);
-
-				double outMoveX = 0;
-				double outMoveY = 0;
-
-				if(outP!=null) {
-					outMoveX = outP.getX();
-					outMoveY = outP.getY();
-				}
-
-				double inMoveX  = 0;
-				double inMoveY  = 0;
-				if(inP!=null) {
-					inMoveX = inP.getX();
-					inMoveY = inP.getY();
-				}
-
-				double xMove = outMoveX - inMoveX;
-				double yMove = outMoveY - inMoveY;
-
-				Double newX = new Double(currentPosition.x.intValue()+xMove);
-				Double newY = new Double(currentPosition.y.intValue()+yMove);
-				Point<Double> newPoint = new Point<>(newX, newY);
-
-				xMax = Math.max(xMax,newX.doubleValue());
-				yMax = Math.max(yMax,newY.doubleValue());
-
-				workGlyphs.push(endGlyph);
-				workConnection.push(new Integer(0));
-				workPositions.push(newPoint);
-			}	
-		}
-
-		// Set the width and height attributes on the root 'svg' element.
-		svgRoot.setAttributeNS(null, "width",  xMax+100+"");
-		svgRoot.setAttributeNS(null, "height", yMax+100+"");
-
-		return (SVGDocument) doc;
-	}
-
 	private static String reparseTransformation(String[] transString) {
 		if(transString==null) {
 			return "";
@@ -660,9 +318,7 @@ public class DocumentBuilder {
 			//TODO Use Correct Word Alignment
 
 			try {
-				SVGDocument sdoc = null; //buildDocument(words.elementAt(i), 50, 0);
-				//sdoc = newBuildDocument(words.elementAt(i), 50, 0);
-				sdoc = newNewBuildDocument(words.elementAt(i), 50, 0);
+				SVGDocument sdoc = buildDocument(words.elementAt(i), 50, 0);
 
 				Element svgElement = sdoc.getDocumentElement();
 				String width  = svgElement.getAttribute("width");

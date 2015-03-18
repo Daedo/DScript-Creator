@@ -10,6 +10,5 @@ public class BuilderState {
 	public int connectionState;
 	public double posX;
 	public double posY;
-	public boolean carryTransformation;
 	public Element groupState;
 }
