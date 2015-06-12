@@ -3,6 +3,8 @@ package files;
 import gui.Main;
 
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -39,8 +41,8 @@ public class DocumentBuilder {
 		// Get the root element (the 'svg' element).
 		Element svgRoot = doc.getDocumentElement();
 
-		double width = 1000;
-		double height= 1000;
+		double width = 100;
+		double height= 100;
 
 		Glyph rootGlyph = root;
 		String inConnection = "2,1";
@@ -64,7 +66,8 @@ public class DocumentBuilder {
 		state.posY 							= 0;//yStart;
 		state.connectionState 				= 0;
 		state.glyphState					= rootGlyph;
-
+		state.inverseTransform				= null;
+		
 		Element mainGroup					= doc.createElementNS(svgNS, "g");
 		mainGroup.setAttributeNS(null, "transform", "translate("+xStart+","+yStart+")");
 
@@ -83,6 +86,7 @@ public class DocumentBuilder {
 			Element currentGroup			= state.groupState;
 			double stateX					= state.posX;
 			double stateY					= state.posY;
+			AffineTransform inverseTrans	= state.inverseTransform;
 			String svgPath					= PropetyInformation.getSVGPath(currentGlyph.getLigature());
 
 
@@ -98,8 +102,15 @@ public class DocumentBuilder {
 
 				//Add transformations
 				Element transformGroup 	= doc.createElementNS(svgNS, "g");
-				
+
 				String transform 		= "";
+
+				if(inverseTrans!=null) {
+					transform = createMatrix(inverseTrans);
+					inverseTrans = null;
+				}
+				
+				
 				
 				boolean hasToCarry = true;
 				String trans = currentGlyph.getTransformation();
@@ -108,19 +119,29 @@ public class DocumentBuilder {
 
 
 					//Find if we have to carry the transformation
-					
+
 					for(String subTransform:splitTrans) {
 						if(subTransform.trim().toUpperCase().equals("NCARRY")) {
 							hasToCarry = false;
 						}
 					}
-
-					String reparse = reparseTransformation(splitTrans);
+					
+					AffineTransform afTransform = reparseTransformation(splitTrans);
+					String reparse = createMatrix(afTransform);
 					if(!reparse.equals("")) {
 						transform+=" "+reparse;
 					}
+					
+					if(!hasToCarry) {
+						try {
+							inverseTrans = afTransform.createInverse();
+						} catch (NoninvertibleTransformException e) {
+							e.printStackTrace();
+							inverseTrans = null;
+						}
+					}
 				}
-				
+
 				transformGroup.setAttributeNS(null, "transform", transform);
 
 				//Move the Glyph from the start configuration so, that the in Point matches with the origin of the coordinate System
@@ -164,7 +185,7 @@ public class DocumentBuilder {
 				img.setAttributeNS(null, "height", "200");
 				inCurrGroup.appendChild(img);
 
-				if(!hasToCarry) {
+				/*if(!hasToCarry) {
 					//Build a Group without transformation
 
 					Element nCarryGroup = doc.createElementNS(svgNS,"g");
@@ -175,16 +196,17 @@ public class DocumentBuilder {
 					currentGroup = nCarryGroup;
 				} else {
 					currentGroup = inCurrGroup;
-				}
+				}*/
+				currentGroup = inCurrGroup;
 
 				//Update current State
-				
+
 				state.groupState = currentGroup;
 			}
 
 			//Push old and Push next
 			if(currentConnection!=null) {
-				
+
 
 				Connection nextConnect 			= currentGlyph.getConnection(currentConnectionID);
 				if(nextConnect!=null && nextConnect.getEnd()!=null) {
@@ -203,9 +225,11 @@ public class DocumentBuilder {
 					nextState.posX					= outPoint.getX();
 					nextState.posY					= outPoint.getY();
 					nextState.groupState			= currentGroup;
-
+					nextState.inverseTransform		= inverseTrans;
+					
 					//Push current State
 					state.connectionState++;
+					state.inverseTransform = inverseTrans;
 					states.push(state);
 					states.push(nextState);
 				}
@@ -226,12 +250,16 @@ public class DocumentBuilder {
 
 		return (SVGDocument) doc;
 	}
-	private static String reparseTransformation(String[] transString) {
+
+	private static AffineTransform reparseTransformation(String[] transString) {
 		if(transString==null) {
-			return "";
+			return new AffineTransform();
+			//return "";
 		}
 
 		String trans = "";
+		AffineTransform transform = new AffineTransform();
+
 
 		for(String transformation:transString) {
 			boolean isRotation = transformation.startsWith("R"); // Rxxx
@@ -246,50 +274,69 @@ public class DocumentBuilder {
 					String rotation = transformation.substring(1);
 					double rot = Double.parseDouble(rotation);
 					trans="rotate("+rot+") "+trans;
+					transform.rotate(rot/180*Math.PI);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
 
 			} else if(isXScale) {
 				try {
-					String scalar = transformation.substring(1);
+					String scalar = transformation.substring(2);
 					double scale = Double.parseDouble(scalar);
 					trans="scale("+scale+",1) "+trans;
+					transform.scale(scale, 1);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
 
 			} else if(isYScale) {
 				try {
-					String scalar = transformation.substring(1);
+					String scalar = transformation.substring(2);
 					double scale = Double.parseDouble(scalar);
 					trans="scale(1,"+scale+") "+trans;
+					transform.scale(1, scale);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
 
 			} else if(isFullScale) {
 				try {
-					String scalar = transformation.substring(1);
+					String scalar = transformation.substring(2);
 					double scale = Double.parseDouble(scalar);
 					trans="scale("+scale+","+scale+") "+trans;
+					transform.scale(scale, scale);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
 
 			} else if(isHFlip) {
 				trans="scale(1,-1) "+trans;
+				transform.scale(1, -1);
 
 			} else if(isVFlip) {
 				trans="scale(-1,1) "+trans;
+				transform.scale(-1, 1);
 			}
 		}
 
 		System.out.println(trans.toString());
-
-		return trans;
+		System.out.println(transform.toString());
+		System.out.println(createMatrix(transform));
+		//return createMatrix(transform);//trans;
+		return transform;
 	}
 
+	private static String createMatrix(AffineTransform trans) {
+		if(trans==null) {
+			return "";
+		}
+		
+		String out = "matrix("+trans.getScaleX()+","+trans.getShearY()+","+trans.getShearX()+trans.getScaleY()+","+trans.getTranslateX()+","+trans.getTranslateY()+")";
+		
+		return out;
+	}
+	
+	
 	public static void printDocument(Document doc, OutputStream out) throws IOException, TransformerException {
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer transformer = tf.newTransformer();
@@ -316,7 +363,7 @@ public class DocumentBuilder {
 
 		for(int i=0;i<words.size();i++) {
 			//TODO Use Correct Word Alignment
-
+			//TODO Add InfoGUI Datas
 			try {
 				SVGDocument sdoc = buildDocument(words.elementAt(i), 50, 0);
 

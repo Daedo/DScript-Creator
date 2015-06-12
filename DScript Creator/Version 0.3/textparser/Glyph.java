@@ -20,14 +20,14 @@ public class Glyph {
 		if(newGlyph==null || connectionType==null) {
 			return;
 		}
-		
+
 		//Parse Connection
-		
+
 		String[] splits = connectionType.split(",");
 		if(splits.length<2) {
 			return;
 		}
-		
+
 		String type = splits[0]+","+splits[1];
 		String trans= "";
 		for(int i=2;i<splits.length;i++) {
@@ -36,7 +36,7 @@ public class Glyph {
 				trans+=",";
 			}
 		}
-		
+
 		newGlyph.setTransformation(trans);
 		Connection connection = new Connection(this, newGlyph, type);
 		this.connections.add(connection);
@@ -51,9 +51,11 @@ public class Glyph {
 
 	public void debugGlyph(int tabs) {
 		String tab = Utilitys.repeatString("\t", tabs);
-
-		System.out.println(tab/*+"Glyph: "+this.ligature*/+toString()+"\t"+PropetyInformation.getSVGPath(this.ligature));
-
+		if(!this.ligature.equals("")) {
+			System.out.println(tab/*+"Glyph: "+this.ligature*/+toString()+"\t"+PropetyInformation.getSVGPath(this.ligature));
+		} else {
+			System.out.println(tab+toString()+"\t"+"<No Path>");
+		}
 		for(Connection connection:this.connections) {
 			connection.debugConnection(tabs+1);
 		}
@@ -69,7 +71,6 @@ public class Glyph {
 		return super.toString()+" - Ligature: "+this.ligature+" - Transformation: "+this.transformation;
 	}
 
-	
 	/**
 	 * @return the transformation
 	 */
@@ -77,7 +78,7 @@ public class Glyph {
 		return this.transformation;
 	}
 
-	
+
 	/**
 	 * @param newTransformation the transformation to set
 	 */

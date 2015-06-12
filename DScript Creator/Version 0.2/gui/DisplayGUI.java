@@ -84,6 +84,10 @@ public class DisplayGUI extends JFrame {
 
 	void addWords(Vector<Glyph> words) {
 		SVGDocument doc = DocumentBuilder.buildWords(words);
+		/*
+		 * TODO Generate InfoGUI for words 
+		 */
+		
 		JSVGCanvas canvas = new JSVGCanvas();
 		canvas.setDocument(doc);
 		Dimension docDim = DocumentBuilder.getSVGSize(doc);

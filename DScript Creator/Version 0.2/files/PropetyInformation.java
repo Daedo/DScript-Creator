@@ -45,7 +45,6 @@ public class PropetyInformation {
 		} catch (IOException e) {
 			throw new BuildingException("Exception while reading Ligature.properties");
 		}
-
 		throw new BuildingException("Could not find Key: "+key);
 	}
 

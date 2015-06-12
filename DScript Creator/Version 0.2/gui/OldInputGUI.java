@@ -36,7 +36,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-public class InputGUI extends JFrame {
+public class OldInputGUI extends JFrame {
 
 	/**
 	 * 
@@ -51,7 +51,7 @@ public class InputGUI extends JFrame {
 			@Override
 			public void run() {
 				try {
-					InputGUI frame = new InputGUI();
+					OldInputGUI frame = new OldInputGUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -63,7 +63,7 @@ public class InputGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public InputGUI() {
+	public OldInputGUI() {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		

@@ -5,19 +5,20 @@ import java.util.Vector;
 
 public class Parser {
 	private Stack<Glyph> chainStack;
-	private Vector<Glyph>words;
+	private Vector<Word>words;
 	private Glyph  wordRoot;
 	private String currentString;
 	private String currentPosition;
 	private boolean isInLigature;
 	private boolean isInPosition;
+	private String word;
 
 	/**
 	 * Parses a String of the new notation
 	 * @param str
 	 * @throws ParseException 
 	 */
-	public Vector<Glyph> parse(String str) throws ParseException {		
+	public Vector<Word> parse(String str) throws ParseException {		
 		if(str == null) {
 			return null;
 		}
@@ -28,20 +29,21 @@ public class Parser {
 		this.isInPosition 	= false;
 		this.chainStack 	= new Stack<>();
 		this.words			= new Vector<>();
-
+		this.word			= "";
 		String input = str.trim();
 
 		for(int i=0;i<input.length();i++) {
 			char currentChar = input.charAt(i);
+			this.word = this.word+currentChar;
 			parseChar(currentChar);			
 		}
 		endWord();
 
-		for(Glyph g:this.words) {
+		/*for(Word g:this.words) {
 			System.out.println("Word: ");
 			g.debugGlyph(0);
 		}
-		System.out.println("End\n");
+		System.out.println("End\n");*/
 		return this.words;
 	}
 
@@ -139,11 +141,11 @@ public class Parser {
 
 		Glyph newGlyph = new Glyph(this.currentString);
 
-		if(this.isInLigature) {
+		/*if(this.isInLigature) {
 			System.out.println("Lig: "+this.currentString);
 		} else {	
 			System.out.println("Cur: "+this.currentString);
-		}
+		}*/
 
 		Glyph prevGlyph = null;
 		if(!this.chainStack.isEmpty()) {
@@ -175,7 +177,11 @@ public class Parser {
 
 	private void endWord() {
 		endGlyph();
-		this.words.add(this.wordRoot);
+		
+		Word outWord= new Word(this.word.trim(), this.wordRoot);
+		//System.out.println("Added: "+this.word);
+		this.word = "";
+		this.words.add(outWord);
 		this.wordRoot = null;
 		this.chainStack.clear();
 	}

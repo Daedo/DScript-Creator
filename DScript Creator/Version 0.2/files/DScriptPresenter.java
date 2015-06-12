@@ -41,7 +41,8 @@ public class DScriptPresenter {
 			Parser parser = new Parser();
 			try {
 				Glyph glyph = parser.parse("["+letter+"]").get(0);
-				
+				Ligature glyphLig = new Ligature(letter);
+				ConnectionPoint inPoint = glyphLig.getConnectionPoint(1);
 				
 				
 				String key  = letter+"_POINTS";
@@ -53,7 +54,7 @@ public class DScriptPresenter {
 				System.out.println(XMLURI);
 				Vector<ConnectionPoint> points = PointParser.parsePoints(XMLURI);
 				
-				Document letterDoc = DocumentBuilder.buildDocument(glyph, 0, 0);
+				Document letterDoc = DocumentBuilder.buildDocument(glyph, inPoint.getX(), inPoint.getY());
 				Element letterRoot = letterDoc.getDocumentElement();
 				String height = letterRoot.getAttribute("height");
 				String width  = letterRoot.getAttribute("width");
