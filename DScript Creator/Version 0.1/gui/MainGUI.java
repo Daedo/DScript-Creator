@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
-import build.DScriptBuilder;
+import build.OldDScriptBuilder;
 import build.DScriptCreator;
 import net.miginfocom.swing.MigLayout;
 
@@ -190,7 +190,7 @@ public class MainGUI extends JFrame {
 			
 			int wordcount = currentLine.getWordcount();
 			for(int j=0;j<wordcount;j++) {
-				DScriptBuilder.buildWord(currentLine.getWord(j));
+				OldDScriptBuilder.buildWord(currentLine.getWord(j));
 			}
 		}
 		

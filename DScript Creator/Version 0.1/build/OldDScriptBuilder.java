@@ -2,7 +2,8 @@ package build;
 
 import scriptparser.DScriptBlock;
 
-public class DScriptBuilder {
+@Deprecated
+public class OldDScriptBuilder {
 	
 	public static DScriptVector buildWord(DScriptBlock wordStart) {
 		

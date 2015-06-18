@@ -67,7 +67,6 @@ public class Glyph {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return super.toString()+" - Ligature: "+this.ligature+" - Transformation: "+this.transformation;
 	}
 
@@ -77,7 +76,6 @@ public class Glyph {
 	public String getTransformation() {
 		return this.transformation;
 	}
-
 
 	/**
 	 * @param newTransformation the transformation to set

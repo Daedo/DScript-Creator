@@ -91,12 +91,9 @@ public class Parser {
 
 		endGlyph();
 		this.isInLigature = true;
-
 	}
 
 	private void closeLigature() throws ParseException {
-
-
 		endGlyph();
 
 		if(!this.isInLigature) {

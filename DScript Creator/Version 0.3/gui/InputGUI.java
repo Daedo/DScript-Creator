@@ -22,6 +22,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JTextField;
 
+import builder.OldDScriptBuilder;
+
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.factories.FormFactory;
@@ -33,8 +35,6 @@ import textparser.ParseException;
 import textparser.Parser;
 import textparser.Word;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.util.Vector;
 
 public class InputGUI extends JFrame {
@@ -44,8 +44,8 @@ public class InputGUI extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField widthTextField;
+	private JTextField heightTextField;
 	private JTable table;
 	JTextArea textArea;
 
@@ -131,7 +131,8 @@ public class InputGUI extends JFrame {
 		Button generateButton = new Button("Generate");
 		generateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				buildDScript(InputGUI.this.textArea.getText());
+				parseDScript(InputGUI.this.textArea.getText());
+				buildDScript(InputGUI.this.data);
 			}
 		});
 		TextEditPanel.add(generateButton, "1, 4, center, top");
@@ -151,18 +152,18 @@ public class InputGUI extends JFrame {
 		JLabel lblWidth = new JLabel("Width");
 		OptionsPanel.add(lblWidth, "1, 1, right, center");
 
-		this.textField = new JTextField();
-		this.textField.setText("640");
-		OptionsPanel.add(this.textField, "2, 1, center, top");
-		this.textField.setColumns(10);
+		this.widthTextField = new JTextField();
+		this.widthTextField.setText("640");
+		OptionsPanel.add(this.widthTextField, "2, 1, center, top");
+		this.widthTextField.setColumns(10);
 
 		JLabel lblHeight = new JLabel("Height");
 		OptionsPanel.add(lblHeight, "3, 1, right, center");
 
-		this.textField_1 = new JTextField();
-		this.textField_1.setText("480");
-		OptionsPanel.add(this.textField_1, "4, 1, center, top");
-		this.textField_1.setColumns(10);
+		this.heightTextField = new JTextField();
+		this.heightTextField.setText("480");
+		OptionsPanel.add(this.heightTextField, "4, 1, center, top");
+		this.heightTextField.setColumns(10);
 
 		JScrollPane scrollPane_1 = new JScrollPane();
 		OptionsPanel.add(scrollPane_1, "1, 3, 4, 1, fill, fill");
@@ -201,8 +202,6 @@ public class InputGUI extends JFrame {
 		scrollPane_1.setViewportView(this.table);
 	}
 	
-	
-	
 	public void addUpdate(DocumentEvent event) {
 	}
 
@@ -217,14 +216,14 @@ public class InputGUI extends JFrame {
 			storeTable();
 		} else  if(index==1){
 			//Reparse DScript
-			buildDScript(this.textArea.getText());
+			parseDScript(this.textArea.getText());
 			updateTable();
 		}
 		
 		System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
 	}
 	
-	public void buildDScript(String text) {
+	public void parseDScript(String text) {
 		Parser parser = new Parser();
 		Vector<Word> newWords = null;
 		try {
@@ -247,6 +246,12 @@ public class InputGUI extends JFrame {
 		}
 	}
 
+	public void storeData() {
+		storeTable();
+		this.data.height = Double.parseDouble(this.heightTextField.getText());
+		this.data.width  = Double.parseDouble(this.widthTextField.getText());
+	}
+	
 	public void storeTable() {
 		if(this.model==null) {
 			return;
@@ -268,5 +273,10 @@ public class InputGUI extends JFrame {
 			}
 			System.out.println("----");
 		}
+	}
+
+	public void buildDScript(GUIData data) {
+		OldDScriptBuilder build = new OldDScriptBuilder();
+		build.buildDScript(data);
 	}
 }

@@ -110,8 +110,6 @@ public class DocumentBuilder {
 					inverseTrans = null;
 				}
 				
-				
-				
 				boolean hasToCarry = true;
 				String trans = currentGlyph.getTransformation();
 				if(trans!=null && !trans.equals("")) {

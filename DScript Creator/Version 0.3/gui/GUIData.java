@@ -6,9 +6,13 @@ import textparser.Word;
 
 public class GUIData {
 	public Vector<GUIWord> words;
+	public double width;
+	public double height;
 
 	public GUIData() {
 		this.words = new Vector<>();
+		this.width = 0;
+		this.height = 0;
 	}
 
 	public void update(Vector<Word> newWords) {
