@@ -19,10 +19,14 @@ import javax.swing.JTabbedPane;
 import java.awt.Button;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 import javax.swing.JTextField;
 
-import builder.OldDScriptBuilder;
+import builder.BuildingException;
+import builder.DScriptBuilder;
+import builder.SVGExporter;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -30,10 +34,14 @@ import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.RowSpec;
 
 import javax.swing.table.DefaultTableModel;
+import javax.xml.transform.TransformerException;
 
-import textparser.ParseException;
-import textparser.Parser;
-import textparser.Word;
+import org.w3c.dom.svg.SVGDocument;
+
+import scriptRepräsentation.DScriptText;
+import scriptRepräsentation.Wordstart;
+import scriptRepräsentation.ParseException;
+import scriptRepräsentation.Parser;
 
 import java.util.Vector;
 
@@ -50,7 +58,8 @@ public class InputGUI extends JFrame {
 	JTextArea textArea;
 
 	private DefaultTableModel  model;
-	private GUIData data;
+	//private GUIData data;
+	DScriptText dText;
 
 	/**
 	 * Launch the application.
@@ -72,8 +81,9 @@ public class InputGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public InputGUI() {
-		this.data = new GUIData();
-
+		//this.data = new GUIData();
+		this.dText = new DScriptText(0, 0);
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		this.contentPane = new JPanel();
@@ -132,7 +142,7 @@ public class InputGUI extends JFrame {
 		generateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				parseDScript(InputGUI.this.textArea.getText());
-				buildDScript(InputGUI.this.data);
+				buildDScript(InputGUI.this.dText);
 			}
 		});
 		TextEditPanel.add(generateButton, "1, 4, center, top");
@@ -225,20 +235,21 @@ public class InputGUI extends JFrame {
 	
 	public void parseDScript(String text) {
 		Parser parser = new Parser();
-		Vector<Word> newWords = null;
+		DScriptText newText = null;
 		try {
-			newWords = parser.parse(text);
+			newText = parser.parseDScript(text);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.data.update(newWords);
+		this.dText.update(newText);
 	}
 
 	public void updateTable() {
 		this.model.setNumRows(0);
-		for(GUIWord word:this.data.words) {
-			Object[] rowData = {word.word.text,
+		
+		for(Wordstart word: this.dText.words) {
+			Object[] rowData = {word.wordText,
 					new Double(word.x),new Double(word.y),
 					new Double(word.width), new Double(word.height)};
 
@@ -248,8 +259,8 @@ public class InputGUI extends JFrame {
 
 	public void storeData() {
 		storeTable();
-		this.data.height = Double.parseDouble(this.heightTextField.getText());
-		this.data.width  = Double.parseDouble(this.widthTextField.getText());
+		this.dText.height= Double.parseDouble(this.heightTextField.getText());
+		this.dText.width = Double.parseDouble(this.widthTextField.getText());
 	}
 	
 	public void storeTable() {
@@ -262,7 +273,7 @@ public class InputGUI extends JFrame {
 		for(int i=0;i<dataVec.size();i++) {
 			Vector<Object> row = dataVec.get(i);
 			
-			GUIWord dataWord = data.words.get(i);
+			Wordstart dataWord = this.dText.words.get(i);
 			dataWord.x 		= ((Double)row.get(1)).doubleValue();
 			dataWord.y 		= ((Double)row.get(2)).doubleValue();
 			dataWord.width 	= ((Double)row.get(3)).doubleValue();
@@ -275,8 +286,16 @@ public class InputGUI extends JFrame {
 		}
 	}
 
-	public void buildDScript(GUIData data) {
-		OldDScriptBuilder build = new OldDScriptBuilder();
-		build.buildDScript(data);
+	public void buildDScript(DScriptText text) {
+		DScriptBuilder build = new DScriptBuilder();
+		
+		try {
+			SVGDocument doc = build.buildDScript(text);
+			SVGExporter.exportSVG(doc, "test.svg");
+		} catch (BuildingException | FileNotFoundException | UnsupportedEncodingException | TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

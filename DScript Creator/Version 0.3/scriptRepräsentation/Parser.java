@@ -2,7 +2,7 @@ package scriptRepräsentation;
 
 
 import java.util.Stack;
-import textparser.ParseException;
+
 
 public class Parser {
 	private static final int STANDARD_EXIT 	= 2;

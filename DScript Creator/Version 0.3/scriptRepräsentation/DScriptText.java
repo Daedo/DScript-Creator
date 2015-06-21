@@ -12,5 +12,10 @@ public class DScriptText {
 		this.height = h;
 		this.words = new Vector<>();
 	}
+
+	public void update(DScriptText newText) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

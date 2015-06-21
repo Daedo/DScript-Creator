@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import builder.BuildingException;
+
 public class PropetyInformation {
 	public static String getSVGPath(String ligature) {
 		try{

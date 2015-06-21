@@ -4,7 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import files.BuildingException;
+import builder.BuildingException;
 
 public class LigatureLookup {
 	

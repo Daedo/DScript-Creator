@@ -1,4 +1,4 @@
-package textparser;
+package scriptRepräsentation;
 
 public class ParseException extends Exception {
 

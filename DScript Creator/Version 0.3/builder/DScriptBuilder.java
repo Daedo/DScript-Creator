@@ -14,7 +14,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 
-import files.BuildingException;
 import scriptRepräsentation.Connection;
 import scriptRepräsentation.DScriptText;
 import scriptRepräsentation.Glyph;

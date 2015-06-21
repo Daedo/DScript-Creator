@@ -8,7 +8,7 @@ import ligatures.LigatureLookup;
 import org.junit.Test;
 import org.w3c.dom.NodeList;
 
-import files.BuildingException;
+import builder.BuildingException;
 
 public class LigatureLookup_Test {
 
