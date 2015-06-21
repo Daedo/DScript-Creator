@@ -22,7 +22,7 @@ public class LigatureExtractor {
 			NodeList groups = doc.getElementsByTagName("g");
 			for(int i=0;i<groups.getLength();i++) {
 				Node nd = groups.item(i);
-				System.out.println(nd.getNodeName()+ " - "+nd.getNodeType()+" - "+nd.getNodeValue());
+				//System.out.println(nd.getNodeName()+ " - "+nd.getNodeType()+" - "+nd.getNodeValue());
 			}
 			return groups;
 

@@ -1,6 +1,5 @@
 package builder;
 
-
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
@@ -24,9 +23,7 @@ import scriptRepräsentation.Wordstart;
 public class DScriptBuilder {
 	private static final String SVG_NAMESPACE = SVGDOMImplementation.SVG_NAMESPACE_URI;
 	
-	
 	public SVGDocument buildDScript(DScriptText text) throws BuildingException {
-
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 		Document doc = impl.createDocument(SVG_NAMESPACE, "svg", null);
 
@@ -37,7 +34,11 @@ public class DScriptBuilder {
 		svgRoot.setAttributeNS(null, "height", text.height+"");
 
 		for(Wordstart word:text.words) {
-			buildWord(doc,svgRoot,word);
+			try {
+				buildWord(doc,svgRoot,word);
+			} catch (BuildingException e) {
+				throw new BuildingException("Could not build word: \""+word.wordText+"\"", e);
+			}
 		}
 
 		return (SVGDocument) doc;
@@ -55,26 +56,6 @@ public class DScriptBuilder {
 		AffineTransform startPos = AffineTransform.getTranslateInstance(wordPosX, wordPosY);
 		
 		buildConnection(doc, parent, wordstart, startPos);
-		/*Element wordGroup = createGroupFromTransform(doc, parent, startPos);
-		
-		//Build Glyph & Ligature Lookup
-		Glyph glyph = wordstart.end;
-		Ligature lig = LigatureLookup.lookupLigature(glyph.ligature);
-		
-		Integer inID = new Integer(glyph.entryID);
-		LigatureConnectionPoint inPoint =lig.connecions.get(inID); 
-		double inX = inPoint.x;
-		double inY = inPoint.y;
-		
-		//Closest to the Glyph. Moves In Point to the origin
-		AffineTransform reverseIn = AffineTransform.getTranslateInstance(-inX, -inY);
-		
-		
-		for(Connection con:glyph.connections) {
-			buildConnection(doc,parent, con);
-		}*/
-		
-		
 	}
 	
 	private void buildConnection(Document doc,Element parent,Connection connection, AffineTransform dataCarry) throws BuildingException {
@@ -106,7 +87,6 @@ public class DScriptBuilder {
 		} catch (NoninvertibleTransformException e) {
 			throw new BuildingException("Could not invert non-carrying matrix while building the ligature: "+currentGlyph.ligature, e);
 		} 
-		
 		
 		for(Connection con:currentGlyph.connections) {
 			Integer outID 							= new Integer(con.exitID);
