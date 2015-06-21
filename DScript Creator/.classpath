@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="C:/Users/Dominik/Desktop/Programmieren/Java/DScript/batik-1.7/batik-1.7/lib/pdf-transcoder.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Dominik/Desktop/Programmieren/Java/DScript/batik-1.7/batik-1.7/lib/xalan-2.6.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Dominik/Desktop/Programmieren/Java/DScript/batik-1.7/batik-1.7/lib/xml-apis-ext.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

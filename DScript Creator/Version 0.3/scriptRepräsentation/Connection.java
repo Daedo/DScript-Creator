@@ -9,6 +9,8 @@ public class Connection {
 	public Glyph end;
 	
 	public Connection(int exit) {
-		this.exitID = exit;
+		this.exitID 				= exit;
+		this.carryingTransform 		= new AffineTransform();
+		this.nonCarryingTransform 	= new AffineTransform();
 	}
 }

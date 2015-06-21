@@ -2,13 +2,13 @@ package ligatures;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 
 import files.BuildingException;
 
 public class LigatureLookup {
-	public static Ligature getLigaturePath(String ligature) throws BuildingException {
+	
+	public static Ligature lookupLigature(String ligature) throws BuildingException {
 		try (FileInputStream fStream = new FileInputStream("Ligatures/Ligatures.properties");
 				BufferedInputStream stream = new BufferedInputStream(fStream);){
 			Properties properties = new Properties();
@@ -24,8 +24,8 @@ public class LigatureLookup {
 				Ligature out = new Ligature(ligature,picturePath,dataPath);
 				return out;
 			}
-		} catch (IOException e) {
-			throw new BuildingException("Exception while reading Ligature.properties");
+		} catch (Exception e) {
+			throw new BuildingException("Exception while reading Ligature.properties",e);
 		}
 		throw new BuildingException("Could not find Ligature: "+ligature);
 	}
