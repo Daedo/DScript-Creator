@@ -223,8 +223,8 @@ public class InputGUI extends JFrame {
 		int index = sourceTabbedPane.getSelectedIndex();
 		if(index==0) {
 			//Store Table
-			storeTable();
-		} else  if(index==1){
+			storeData();
+		} else if(index==1){
 			//Reparse DScript
 			parseDScript(this.textArea.getText());
 			updateTable();
@@ -259,11 +259,21 @@ public class InputGUI extends JFrame {
 
 	public void storeData() {
 		storeTable();
+		
+		if(this.heightTextField== null || this.widthTextField==null) {
+			return;
+		}
+		
+		if(this.heightTextField.getText()!=null) {
 		this.dText.height= Double.parseDouble(this.heightTextField.getText());
-		this.dText.width = Double.parseDouble(this.widthTextField.getText());
+		}
+		
+		if(this.widthTextField.getText()!=null) {
+			this.dText.width = Double.parseDouble(this.widthTextField.getText());
+		}
 	}
 	
-	public void storeTable() {
+	private void storeTable() {
 		if(this.model==null) {
 			return;
 		}

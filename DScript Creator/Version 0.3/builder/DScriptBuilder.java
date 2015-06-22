@@ -61,15 +61,21 @@ public class DScriptBuilder {
 		dataCarry.concatenate(connection.carryingTransform);
 		dataCarry.concatenate(connection.nonCarryingTransform);
 		
-		AffineTransform inTransform = AffineTransform.getTranslateInstance(0, 0);
+		Glyph currentGlyph = connection.end;
+		Ligature lig = LigatureLookup.lookupLigature(currentGlyph.ligature);
+		
+		Integer entryID = new Integer(currentGlyph.entryID);
+		LigatureConnectionPoint entryConnectionPoint = lig.connecions.get(entryID); 
+		double inX = entryConnectionPoint.x;
+		double inY = entryConnectionPoint.y;
+		
+		AffineTransform inTransform = AffineTransform.getTranslateInstance(-inX, -inY);
 		//-InX,-InY
 		dataCarry.concatenate(inTransform);
 		
 		// Group for the current Glyph
 		Element glyphGroup = createGroupFromTransform(doc, parent, dataCarry);
 		
-		Glyph currentGlyph = connection.end;
-		Ligature lig = LigatureLookup.lookupLigature(currentGlyph.ligature);
 		
 		//Import Glyph Data
 		//TODO We currently only use the first Elmenent of the lig.drawData = first <g> in the ligature svg file, we might want to change that, to fit different versions for things like inside inserts 
