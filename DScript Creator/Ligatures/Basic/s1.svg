@@ -3,8 +3,7 @@
               "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" width="110" height="110">
-  <path fill="none" stroke="black" stroke-width="3"
-        d="M 42.50,55.00
-           C 21.79,55.00 5.00,43.81 5.00,30.00
-             5.00,16.19 21.79,5.00 42.50,5.00" />
+	<g id="main">
+  		<path fill="none" stroke="black" stroke-width="3" d="M 42.50,55.00 C 21.79,55.00 5.00,43.81 5.00,30.00 5.00,16.19 21.79,5.00 42.50,5.00" />
+    </g>
 </svg>

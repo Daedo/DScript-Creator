@@ -16,6 +16,7 @@ public class Parser {
 	private int entryID;
 	private int parseIndex;
 	private String wordText;
+	private Glyph lastGlyph;
 
 	public DScriptText parseDScript(String inputText) throws ParseException {
 		this.text 				= new DScriptText(0, 0);
@@ -26,7 +27,9 @@ public class Parser {
 		this.entryID			= 1;
 		this.wordText			= "";
 
-		String inp = inputText.trim();
+		String inp = inputText.replaceAll("\\s+", " ");
+		inp = inp.trim();
+		
 		for(this.parseIndex=0;this.parseIndex<inp.length();this.parseIndex++) {
 			char chr = inp.charAt(this.parseIndex);
 			this.wordText+=chr;
@@ -36,6 +39,7 @@ public class Parser {
 				throw new ParseException("Parse Error at: "+this.parseIndex, e);
 			}
 		}
+		endWord();
 		return this.text;
 	}
 
@@ -85,6 +89,8 @@ public class Parser {
 	}
 
 	private void endWord() {
+		//Remove last Connection of the word, that is not used
+		this.lastGlyph.connections.remove(this.connections.peek());
 		this.connections.clear();
 		this.text.words.lastElement().wordText = this.wordText.trim();
 		this.wordText = "";
@@ -106,8 +112,6 @@ public class Parser {
 			this.connections.peek().exitID = exit;
 
 			//TODO parse Transforms
-
-
 		} else {
 			throw new ParseException("Parse Error with Connection at Position "+this.parseIndex);
 		}
@@ -144,5 +148,6 @@ public class Parser {
 
 		this.entryID = STANDARD_ENTRY;
 		this.currentParseText = "";
+		this.lastGlyph = newGlyph;
 	}
 }

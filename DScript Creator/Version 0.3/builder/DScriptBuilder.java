@@ -74,7 +74,7 @@ public class DScriptBuilder {
 		//Import Glyph Data
 		//TODO We currently only use the first Elmenent of the lig.drawData = first <g> in the ligature svg file, we might want to change that, to fit different versions for things like inside inserts 
 		Node glyphNode = lig.drawData.item(0);
-		doc.importNode(glyphNode, true);
+		glyphNode = doc.importNode(glyphNode, true);
 		glyphGroup.appendChild(glyphNode);
 		
 		

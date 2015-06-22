@@ -235,14 +235,14 @@ public class InputGUI extends JFrame {
 	
 	public void parseDScript(String text) {
 		Parser parser = new Parser();
-		DScriptText newText = null;
+		System.out.println("Text: "+text);
 		try {
-			newText = parser.parseDScript(text);
+			DScriptText newText = parser.parseDScript(text);
+			this.dText.update(newText);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.dText.update(newText);
 	}
 
 	public void updateTable() {
@@ -269,7 +269,6 @@ public class InputGUI extends JFrame {
 		}
 		
 		Vector<Vector<Object>> dataVec = this.model.getDataVector();
-		//for(Vector<Object> row:dataVec) {
 		for(int i=0;i<dataVec.size();i++) {
 			Vector<Object> row = dataVec.get(i);
 			
