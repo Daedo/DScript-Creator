@@ -1,6 +1,7 @@
 package scriptRepräsentation;
 
 
+import java.awt.geom.AffineTransform;
 import java.util.Stack;
 
 
@@ -112,11 +113,24 @@ public class Parser {
 			this.connections.peek().exitID = exit;
 
 			//TODO parse Transforms
+			if(connectionDetails.length>=3) {
+				TransformationParser transParser = new TransformationParser();
+				//Carrying Transform
+				this.connections.peek().carryingTransform = transParser.parseTransformation(connectionDetails[2]);
+				
+				if(connectionDetails.length>=4) {
+					//Non-Carrying Transform
+					this.connections.peek().nonCarryingTransform = transParser.parseTransformation(connectionDetails[3]);					
+				}				
+			}
+			
+			
 		} else {
 			throw new ParseException("Parse Error with Connection at Position "+this.parseIndex);
 		}
 
 	}
+	
 
 	private void startLigature() {
 		this.isInLigature = true;
@@ -150,4 +164,5 @@ public class Parser {
 		this.currentParseText = "";
 		this.lastGlyph = newGlyph;
 	}
+
 }
